@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "868232439980",
+    "project_id": "krushimitra-73dc8",
+    "storage_bucket": "krushimitra-73dc8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868232439980:android:296bca0a74ba3bd4825709",
+        "android_client_info": {
+          "package_name": "com.mountrich.krushimitra"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "868232439980-g7vume59jaep4sjpushfoc07kp8un5b4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mountrich.krushimitra",
+            "certificate_hash": "9812803f3b7a483c70dc5a525ca3199429ba3e6f"
+          }
+        },
+        {
+          "client_id": "868232439980-01ombidkub275b9lf4jip0r6p1jljiae.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrvmPCVQYt2GRRKe7b2YZQnar-xDRmvZ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "868232439980-01ombidkub275b9lf4jip0r6p1jljiae.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

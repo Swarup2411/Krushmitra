@@ -1,4 +1,6 @@
-// Apply the Android application plugin
+plugins {
+    alias(libs.plugins.google.gms.google.services)
+}// Apply the Android application plugin
 apply plugin: 'com.android.application'
 
 android {
@@ -35,13 +37,18 @@ dependencies {
     implementation 'androidx.activity:activity:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
     implementation libs.activity
-
+    implementation libs.firebase.auth
+    implementation libs.google.firebase.auth
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.android.gms:play-services-auth:21.0.0'
     // Unit Testing
     testImplementation 'junit:junit:4.13.2'
 
     // Android Instrumentation Testing
     androidTestImplementation 'androidx.test.ext:junit:1.1.6'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+
 
   
 
