@@ -24,7 +24,7 @@ public class SplashScreen extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash_screen);
 
-        getSupportActionBar().hide();
+
 
         ivSplash = findViewById(R.id.iv_splash);
         tvAppName = findViewById(R.id.tv_appname);
