@@ -13,6 +13,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+import com.mountrich.krushimitra.Common.*;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
+
 public class RegisterActivity extends AppCompatActivity {
 
     EditText edtNameRegister,edtMobileRegister,edtEmailRegister,edtQualificationRegister,edtAddressRegister,edtUsernameRegister,edtPasswordRegister;
@@ -45,8 +55,9 @@ public class RegisterActivity extends AppCompatActivity {
 
         btnRegister.setOnClickListener(v->{
             if(validateInputs()){
-                Toast.makeText(this, "Register Success", Toast.LENGTH_SHORT).show();
+
                 startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
+                registerUser();
                 finish();
             }
         });
@@ -56,6 +67,60 @@ public class RegisterActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+    }
+
+    private void registerUser() {
+        //Network throught data transfer.
+        //Sending and managing request over network.
+        AsyncHttpClient client = new AsyncHttpClient(); // Send and manage the data.
+        RequestParams params = new RequestParams();     // pass the data or data store.
+
+        params.put("name",edtNameRegister.getText().toString()); //key and value
+        params.put("mobileno",edtMobileRegister.getText().toString());
+        params.put("emailid",edtEmailRegister.getText().toString());
+        params.put("qualification",edtQualificationRegister.getText().toString());
+        params.put("address",edtAddressRegister.getText().toString());
+        params.put("username",edtUsernameRegister.getText().toString());
+        params.put("password",edtPasswordRegister.getText().toString());
+
+        client.post(Urls.RegisterUserWebServiceAddress,params,new JsonHttpResponseHandler()
+
+        {
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+
+                try
+                {
+                    String status = response.getString("success");
+
+                    if (status.equals("1"))
+                    {
+                        Toast.makeText(RegisterActivity.this,"Registration successfully done",Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(RegisterActivity.this,LoginActivity.class);
+                        startActivity(intent);
+
+                    }
+                    else
+                    {
+                        Toast.makeText(RegisterActivity.this,"Username or Password is exist",Toast.LENGTH_SHORT).show();
+                    }
+                }
+                catch (JSONException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                Toast.makeText(RegisterActivity.this,"Server Error",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
     }
 
     private boolean validateInputs() {
