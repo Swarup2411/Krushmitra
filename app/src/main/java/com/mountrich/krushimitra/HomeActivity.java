@@ -12,13 +12,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.mountrich.krushimitra.fragments.CropDoctorFragement;
+import com.mountrich.krushimitra.fragments.HomeFragment;
+import com.mountrich.krushimitra.fragments.MyOrdersFragment;
+import com.mountrich.krushimitra.fragments.WeatherFragment;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -26,6 +33,7 @@ public class HomeActivity extends AppCompatActivity {
     FirebaseAuth firebaseAuth;
     GoogleSignInClient googleSignInClient;
 
+     BottomNavigationView bottomNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +42,8 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         firebaseAuth = FirebaseAuth.getInstance();
+
+        bottomNav = findViewById(R.id.bottom_nav);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -44,6 +54,49 @@ public class HomeActivity extends AppCompatActivity {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
+        bottomNav = findViewById(R.id.bottom_nav);
+
+        // Default tab
+        loadFragment(new HomeFragment());
+
+        bottomNav.setOnItemSelectedListener(item -> {
+
+            Fragment fragment = null;
+
+            if(item.getItemId() == R.id.nav_home){
+                fragment = new HomeFragment();
+
+            }
+
+            if(item.getItemId() == R.id.nav_crop_doctor){
+                fragment = new CropDoctorFragement();
+
+            }
+
+            if(item.getItemId() == R.id.nav_orders){
+                fragment = new MyOrdersFragment();
+
+            }
+
+            if(item.getItemId() == R.id.nav_weather){
+                fragment = new WeatherFragment();
+            }
+
+
+            if (fragment != null) {
+                loadFragment(fragment);
+            }
+
+            return true;
+        });
+
+    }
+
+    private void loadFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
     }
 
     @Override
@@ -84,5 +137,8 @@ public class HomeActivity extends AppCompatActivity {
             finish();
         });
     }
+
+
+
 
 }
