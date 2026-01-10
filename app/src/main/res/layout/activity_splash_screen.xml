@@ -5,15 +5,15 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/splash_bg"
     android:orientation="vertical"
+    android:background="@color/white"
     tools:context=".SplashScreen">
 
     <ImageView
         android:id="@+id/iv_splash"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:src="@drawable/img"
+        android:layout_width="240dp"
+        android:layout_height="240dp"
+        android:src="@drawable/krushi_img"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -21,39 +21,30 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.425" />
 
-    <TextView
-        android:id="@+id/tv_appname"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Krushi Mitra"
-        android:textColor="@color/white"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/iv_splash"
-        app:layout_constraintStart_toStartOf="@+id/iv_splash"
-        app:layout_constraintTop_toBottomOf="@+id/iv_splash" />
 
     <TextView
         android:id="@+id/tv_appname2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="52dp"
         android:text="Helping Farmers Grow Better"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/tv_appname"
-        app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toStartOf="@+id/tv_appname"
-        app:layout_constraintTop_toBottomOf="@+id/tv_appname" />
+        app:layout_constraintEnd_toEndOf="@+id/iv_splash"
+        app:layout_constraintHorizontal_bias="0.492"
+        app:layout_constraintStart_toStartOf="@+id/iv_splash"
+        app:layout_constraintTop_toBottomOf="@+id/iv_splash" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="144dp"
-        android:progressTint="@color/white"
+        android:layout_marginTop="44dp"
         android:indeterminate="true"
-        app:layout_constraintEnd_toEndOf="@+id/tv_appname"
-        app:layout_constraintStart_toStartOf="@+id/tv_appname"
-        app:layout_constraintTop_toBottomOf="@+id/tv_appname" />
+
+        android:progressTint="@color/white"
+        app:layout_constraintEnd_toEndOf="@+id/tv_appname2"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="@+id/tv_appname2"
+        app:layout_constraintTop_toBottomOf="@+id/tv_appname2" />
 </androidx.constraintlayout.widget.ConstraintLayout>

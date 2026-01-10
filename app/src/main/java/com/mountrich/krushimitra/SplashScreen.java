@@ -27,13 +27,13 @@ public class SplashScreen extends AppCompatActivity {
 
 
         ivSplash = findViewById(R.id.iv_splash);
-        tvAppName = findViewById(R.id.tv_appname);
+//        tvAppName = findViewById(R.id.tv_appname);
 
         Animation logoAnim = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.logo_scale);
         Animation tvAnim = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fade_in);
 
         ivSplash.setAnimation(logoAnim);
-        tvAppName.setAnimation(tvAnim);
+//        tvAppName.setAnimation(tvAnim);
 
         new Handler().postDelayed(new Runnable() {
             @Override
