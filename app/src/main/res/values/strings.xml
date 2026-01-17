@@ -11,5 +11,6 @@
     <string name="email_username">Email / Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
-
+    <string name="pune_india">Pune, India</string>
+    <string name="API_KEY">1ecef33a983ec135fdd1f42844a86496</string>
 </resources>

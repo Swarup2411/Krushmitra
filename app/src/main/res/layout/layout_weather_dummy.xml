@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#03A9F4">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- LOCATION -->
+            <View
+                android:layout_width="180dp"
+                android:layout_height="24dp"
+                android:background="#80FFFFFF"
+                android:layout_marginBottom="16dp" />
+
+            <!-- ICON + TEMP -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="16dp">
+
+                <View
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:background="#80FFFFFF" />
+
+                <View
+                    android:layout_width="80dp"
+                    android:layout_height="36dp"
+                    android:background="#80FFFFFF"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+
+            <!-- WEATHER TYPE -->
+            <View
+                android:layout_width="120dp"
+                android:layout_height="20dp"
+                android:background="#80FFFFFF"
+                android:layout_marginBottom="16dp" />
+
+            <!-- RAIN + WIND -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="20dp"
+                    android:background="#80FFFFFF" />
+
+                <View
+                    android:layout_width="100dp"
+                    android:layout_height="20dp"
+                    android:background="#80FFFFFF"
+                    android:layout_marginStart="12dp" />
+            </LinearLayout>
+
+            <!-- FARMER ADVICE CARD -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#B0FFFFFF"
+                android:padding="16dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp">
+
+                <View
+                    android:layout_width="160dp"
+                    android:layout_height="22dp"
+                    android:background="#80FFFFFF"
+                    android:layout_marginBottom="12dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="18dp"
+                    android:background="#80FFFFFF"
+                    android:layout_marginBottom="8dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="18dp"
+                    android:background="#80FFFFFF" />
+            </LinearLayout>
+
+            <!-- FORECAST TITLE -->
+            <View
+                android:layout_width="140dp"
+                android:layout_height="22dp"
+                android:background="#80FFFFFF"
+                android:layout_marginBottom="12dp" />
+
+            <!-- FORECAST LIST DUMMY -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:background="#80FFFFFF" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</FrameLayout>

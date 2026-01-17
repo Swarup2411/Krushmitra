@@ -27,7 +27,7 @@ import com.mountrich.krushimitra.fragments.WeatherFragment;
 
 public class HomeActivity extends AppCompatActivity {
 
-    MaterialToolbar toolbar;
+//    MaterialToolbar toolbar;
     FirebaseAuth firebaseAuth;
     GoogleSignInClient googleSignInClient;
 
@@ -43,8 +43,8 @@ public class HomeActivity extends AppCompatActivity {
 
         bottomNav = findViewById(R.id.bottom_nav);
 
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        toolbar = findViewById(R.id.toolbar);
+
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()

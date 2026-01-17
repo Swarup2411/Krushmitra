@@ -1,17 +1,173 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.WeatherFragment">
+    android:background="#03A9F4">
 
-    <TextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <include
+        android:id="@+id/dummyLayout"
+        layout="@layout/layout_weather_dummy"
+        android:visibility="visible"/>
+
+
+    <!-- 🌾 MAIN CONTENT -->
+    <ScrollView
+        android:id="@+id/layoutContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="Weather"
-        android:textSize="22sp"/>
+        android:layout_marginTop="20dp">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+
+            <!-- 📍 LOCATION -->
+            <TextView
+                android:id="@+id/tvLocation"
+                android:text=" Ambad, Maharashtra"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" />
+
+            <!-- ☁ ICON + TEMP -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="70dp"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:id="@+id/imgWeather"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/weather_icon" />
+
+                <TextView
+                    android:id="@+id/tvTemp"
+                    android:text="29°C"
+                    android:textSize="36sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginStart="16dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- ☁ WEATHER TYPE -->
+            <TextView
+                android:id="@+id/tvWeatherType"
+                android:text="☁ Cloudy"
+                android:textSize="18sp"
+                android:textColor="#ffffff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" />
+
+            <!-- 🌧 RAIN + 🌬 WIND -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/tvRain"
+                    android:text="🌧 Rain: High (70%)"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/tvWind"
+                    android:text="🌬 Wind: 11 km/h"
+                    android:textSize="16sp"
+                    android:textColor="#FFFFFF"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- ⚠ FARMER ADVICE -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_radius"
+                android:padding="16dp"
+
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:text="⚠ FARMER ADVICE"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFCA28"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tvAdvice1"
+                    android:text="🚫 Do NOT spray pesticides today"
+                    android:textSize="16sp"
+                    android:textColor="#000"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/tvAdvice2"
+                    android:text="🌱 Good moisture for crops"
+                    android:textSize="16sp"
+                    android:textColor="#000"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- 📅 FORECAST -->
+            <TextView
+                android:text="📅 5-Day Forecast"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSevenDay"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ⏳ LOADING -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <!-- ❌ ERROR -->
+    <TextView
+        android:id="@+id/tvError"
+        android:text="No internet connection"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </FrameLayout>
