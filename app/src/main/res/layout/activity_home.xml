@@ -9,18 +9,7 @@
     android:fitsSystemWindows="true"
     tools:context=".HomeActivity">
 
-    <!-- Toolbar -->
-<!--    <com.google.android.material.appbar.MaterialToolbar-->
-<!--        android:id="@+id/toolbar"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="?attr/actionBarSize"-->
-<!--        android:background="@color/green"-->
-<!--        app:title="Home"-->
-<!--        app:titleTextColor="@android:color/white"-->
-<!--        app:elevation="6dp"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+
 
     <!-- Fragment Container -->
     <FrameLayout
