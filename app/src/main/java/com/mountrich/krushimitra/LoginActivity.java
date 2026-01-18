@@ -1,13 +1,17 @@
 package com.mountrich.krushimitra;
 
+import static android.view.View.GONE;
+
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -20,28 +24,23 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
-import com.mountrich.krushimitra.Common.Urls;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import cz.msebera.android.httpclient.Header;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
-    EditText edtUsernameLogin, edtPasswordLogin;
-    Button btnLogin, googleSignUpButton;
-    TextView tvNewUser;
+    EditText edtUsername, edtPassword;
+    Button btnLogin, btnGoogle;
+    ProgressBar progressBar;
+    TextView tvRegister;
 
-    FirebaseAuth firebaseAuth;
+    FirebaseAuth auth;
+    FirebaseFirestore db;
+
     GoogleSignInClient googleSignInClient;
-
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
-
     int RC_SIGN_IN = 100;
 
     @Override
@@ -49,14 +48,16 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Firebase
-        firebaseAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-        // Shared Preferences
-        sharedPreferences = getSharedPreferences("KrushiMitra", MODE_PRIVATE);
-        editor = sharedPreferences.edit();
+        edtUsername = findViewById(R.id.edtUsernameLogin);
+        edtPassword = findViewById(R.id.edtPasswordLogin);
+        btnLogin = findViewById(R.id.btnLogin);
+        btnGoogle = findViewById(R.id.google_sign_up_btn);
+        progressBar = findViewById(R.id.loginProgressbar);
+        tvRegister = findViewById(R.id.tv_new_user);
 
-        // Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(
                 GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -65,98 +66,83 @@ public class LoginActivity extends AppCompatActivity {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        // Views
-        edtUsernameLogin = findViewById(R.id.edtUsernameLogin);
-        edtPasswordLogin = findViewById(R.id.edtPasswordLogin);
-        btnLogin = findViewById(R.id.btnLogin);
-        googleSignUpButton = findViewById(R.id.google_sign_up_btn);
-        tvNewUser = findViewById(R.id.tv_new_user);
-
-        // New User
-        tvNewUser.setOnClickListener(v -> {
-            startActivity(new Intent(this, RegisterActivity.class));
-            finish();
-        });
-
-        // Login Button
         btnLogin.setOnClickListener(v -> {
             if (validateLogin()) {
-                loginUser();
+                findEmailAndLogin();
             }
         });
 
-        // Google Login
-        googleSignUpButton.setOnClickListener(v -> {
-            startActivityForResult(
-                    googleSignInClient.getSignInIntent(),
-                    RC_SIGN_IN
-            );
+        btnGoogle.setOnClickListener(v ->
+                startActivityForResult(
+                        googleSignInClient.getSignInIntent(),
+                        RC_SIGN_IN));
+
+        tvRegister.setOnClickListener(v -> {
+            startActivity(new Intent(this, RegisterActivity.class));
+            finish();
         });
     }
 
-    // ---------------- API LOGIN ----------------
-    private void loginUser() {
+    // ---------------- FIND EMAIL ----------------
+    private void findEmailAndLogin() {
+        setInProgress(true);
 
-        AsyncHttpClient client = new AsyncHttpClient();
-        RequestParams params = new RequestParams();
+        String input = edtUsername.getText().toString().trim();
 
-        params.put("username", edtUsernameLogin.getText().toString().trim());
-        params.put("password", edtPasswordLogin.getText().toString().trim());
+        db.collection("users")
+                .get()
+                .addOnSuccessListener(query -> {
+                    for (QueryDocumentSnapshot doc : query) {
+                        String email = doc.getString("email");
+                        String mobile = doc.getString("mobile");
+                        String username = doc.getString("username");
 
-        client.post(Urls.LoginUserWebService, params,
-                new JsonHttpResponseHandler() {
+                        if (input.equals(email)
+                                || input.equals(mobile)
+                                || input.equals(username)) {
 
-                    @Override
-                    public void onSuccess(int statusCode,
-                                          Header[] headers,
-                                          JSONObject response) {
-
-                        try {
-                            if (response.getString("success").equals("1")) {
-
-                                editor.putBoolean("islogin", true);
-                                editor.putString("username",
-                                        edtUsernameLogin.getText().toString().trim());
-                                editor.apply();
-
-                                Toast.makeText(LoginActivity.this,
-                                        "Login Successful",
-                                        Toast.LENGTH_SHORT).show();
-
-                                startActivity(new Intent(
-                                        LoginActivity.this,
-                                        HomeActivity.class));
-                                finish();
-
-                            } else {
-                                Toast.makeText(LoginActivity.this,
-                                        "Invalid credentials",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            firebaseLogin(email);
+                            return;
                         }
                     }
 
-                    @Override
-                    public void onFailure(int statusCode,
-                                          Header[] headers,
-                                          Throwable throwable,
-                                          JSONObject errorResponse) {
+                    setInProgress(false);
+                    Toast.makeText(this,
+                            "User not found",
+                            Toast.LENGTH_SHORT).show();
+                });
+    }
 
-                        Toast.makeText(LoginActivity.this,
-                                "Server error",
-                                Toast.LENGTH_SHORT).show();
+    // ---------------- FIREBASE LOGIN ----------------
+    private void firebaseLogin(String email) {
+
+        auth.signInWithEmailAndPassword(
+                        email,
+                        edtPassword.getText().toString())
+                .addOnCompleteListener(task -> {
+
+                    setInProgress(false);
+
+                    if (task.isSuccessful()) {
+                        startActivity(new Intent(
+                                LoginActivity.this,
+                                HomeActivity.class));
+                        finish();
+                    } else {
+                        Toast.makeText(this,
+                                task.getException().getMessage(),
+                                Toast.LENGTH_LONG).show();
                     }
                 });
     }
 
     // ---------------- GOOGLE RESULT ----------------
     @Override
-    protected void onActivityResult(int requestCode,
-                                    int resultCode,
-                                    Intent data) {
+    protected void onActivityResult(
+            int requestCode,
+            int resultCode,
+            Intent data) {
+
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_SIGN_IN) {
@@ -179,20 +165,25 @@ public class LoginActivity extends AppCompatActivity {
         AuthCredential credential =
                 GoogleAuthProvider.getCredential(idToken, null);
 
-        firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
+        auth.signInWithCredential(credential)
+                .addOnCompleteListener(task -> {
 
                     if (task.isSuccessful()) {
 
-                        FirebaseUser user =
-                                firebaseAuth.getCurrentUser();
+                        FirebaseUser user = auth.getCurrentUser();
 
-                        Toast.makeText(this,
-                                "Welcome " + user.getDisplayName(),
-                                Toast.LENGTH_SHORT).show();
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("name", user.getDisplayName());
+                        map.put("email", user.getEmail());
+                        map.put("mobile", "");
+                        map.put("username", "");
+
+                        db.collection("users")
+                                .document(user.getUid())
+                                .set(map);
 
                         startActivity(new Intent(
-                                LoginActivity.this,
+                                this,
                                 HomeActivity.class));
                         finish();
 
@@ -204,53 +195,22 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    // ---------------- VALIDATION (FIXED) ----------------
+    // ---------------- UI ----------------
+    void setInProgress(boolean show) {
+        progressBar.setVisibility(show ? View.VISIBLE : GONE);
+        btnLogin.setVisibility(show ? GONE : View.VISIBLE);
+    }
+
+    // ---------------- VALIDATION ----------------
     private boolean validateLogin() {
 
-        String username =
-                edtUsernameLogin.getText().toString().trim();
-        String password =
-                edtPasswordLogin.getText().toString().trim();
-
-        if (username.isEmpty()) {
-            edtUsernameLogin.setError(
-                    "Enter username / mobile / email");
+        if (edtUsername.getText().toString().trim().isEmpty()) {
+            edtUsername.setError("Required");
             return false;
         }
 
-        // EMAIL only if looks like email
-        if (username.contains("@") && username.contains(".")) {
-            if (!android.util.Patterns.EMAIL_ADDRESS
-                    .matcher(username).matches()) {
-                edtUsernameLogin.setError("Invalid email address");
-                return false;
-            }
-        }
-        // MOBILE
-        else if (username.matches("\\d+")) {
-            if (username.length() != 10) {
-                edtUsernameLogin.setError(
-                        "Mobile number must be 10 digits");
-                return false;
-            }
-        }
-        // USERNAME
-        else {
-            if (username.length() < 3) {
-                edtUsernameLogin.setError(
-                        "Username must be at least 3 characters");
-                return false;
-            }
-        }
-
-        if (password.isEmpty()) {
-            edtPasswordLogin.setError("Enter password");
-            return false;
-        }
-
-        if (password.length() < 6) {
-            edtPasswordLogin.setError(
-                    "Password must be at least 6 characters");
+        if (edtPassword.getText().toString().length() < 6) {
+            edtPassword.setError("Min 6 characters");
             return false;
         }
 
