@@ -1,5 +1,6 @@
 package com.mountrich.krushimitra;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.fragment.app.Fragment;
@@ -112,7 +114,24 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         if (item.getItemId() == R.id.menu_logout) {
-            logoutUser();
+
+             AlertDialog.Builder builder = new AlertDialog.Builder(this);
+             builder.setTitle("Logout")
+                             .setMessage("Are you sure you want to log out ?")
+                                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                         @Override
+                                         public void onClick(DialogInterface dialogInterface, int i) {
+                                             logoutUser();
+                                         }
+                                     })
+                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                         @Override
+                         public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                         }
+                     }).show();
+
+
             return true;
         }
 

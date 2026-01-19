@@ -46,7 +46,7 @@ public class WeatherFragment extends Fragment {
 
     private static final String API_KEY = "1ecef33a983ec135fdd1f42844a86496";
 
-    private TextView tvTemperature, tvWeatherType, tvLocation, tvDate,tvError;
+    private TextView tvTemperature, tvWeatherType, tvLocation,tvError;
     private TextView tvAdvice1, tvAdvice2;
     private ImageView imgWeather;
     private RecyclerView rvFiveDay;
@@ -96,7 +96,9 @@ public class WeatherFragment extends Fragment {
     // ================= LOCATION =================
     private void getCurrentLocationWeather() {
 
-        if (ActivityCompat.checkSelfPermission(requireContext(),
+        if (!isAdded() || getContext() == null) return;
+
+        if (ActivityCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
@@ -107,15 +109,15 @@ public class WeatherFragment extends Fragment {
 
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(location -> {
-                    if (location != null) {
-                        fetchWeatherByLocation(
-                                location.getLatitude(),
-                                location.getLongitude()
-//                                20.1139, 74.5228
-                        );
-                    }
+                    if (!isAdded() || location == null) return;
+
+                    fetchWeatherByLocation(
+                            location.getLatitude(),
+                            location.getLongitude()
+                    );
                 });
     }
+
 
     // ================= API CALLS =================
     private void fetchWeatherByLocation(double lat, double lon) {
@@ -129,6 +131,8 @@ public class WeatherFragment extends Fragment {
                     public void onResponse(Call<CurrentWeatherResponse> call,
                                            Response<CurrentWeatherResponse> response) {
 
+                        if (!isAdded() || getContext() == null) return;
+
                         if (!response.isSuccessful() || response.body() == null) return;
 
                         dummyLayout.setVisibility(View.GONE);
@@ -141,15 +145,15 @@ public class WeatherFragment extends Fragment {
                         tvLocation.setText(data.name);
 
                         long time = data.dt * 1000L;
-//                        tvDate.setText(new SimpleDateFormat(
-//                                "EEEE, dd MMM", Locale.getDefault())
-//                                .format(new Date(time)));
+//
 
                         String iconUrl =
                                 "https://openweathermap.org/img/wn/" +
                                         data.weather.get(0).icon + "@2x.png";
 
-                        Glide.with(requireContext())
+                        if (!isAdded()) return;
+
+                        Glide.with(getContext())
                                 .load(iconUrl)
                                 .into(imgWeather);
 
@@ -175,6 +179,7 @@ public class WeatherFragment extends Fragment {
                     public void onResponse(Call<ForecastResponse> call,
                                            Response<ForecastResponse> response) {
 
+                        if (!isAdded() || getContext() == null) return;
                         if (!response.isSuccessful() || response.body() == null) return;
 
                         List<DailyForecast> forecastList = new ArrayList<>();
@@ -214,6 +219,7 @@ public class WeatherFragment extends Fragment {
 
                         forecastList.addAll(dayMap.values());
 
+                        if (!isAdded()) return;
                         FiveDayForecastAdapter adapter =
                                 new FiveDayForecastAdapter(getContext(), forecastList);
 
