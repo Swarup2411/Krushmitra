@@ -10,6 +10,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class SplashScreen extends AppCompatActivity {
 
@@ -36,9 +37,21 @@ public class SplashScreen extends AppCompatActivity {
         Animation logoAnim = AnimationUtils.loadAnimation(this, R.anim.logo_scale);
         ivSplash.startAnimation(logoAnim);
 
+
+
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            startActivity(new Intent(SplashScreen.this, LoginActivity.class));
+
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+
+            if (auth.getCurrentUser() != null) {
+                startActivity(new Intent(this, HomeActivity.class));
+            } else {
+                startActivity(new Intent(this, LoginActivity.class));
+            }
+
             finish();
+
         }, 3000);
+
     }
 }

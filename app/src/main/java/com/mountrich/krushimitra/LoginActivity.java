@@ -108,7 +108,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     setInProgress(false);
                     Toast.makeText(this,
-                            "User not found",
+                            "Username or Password mismatch  ",
                             Toast.LENGTH_SHORT).show();
                 });
     }

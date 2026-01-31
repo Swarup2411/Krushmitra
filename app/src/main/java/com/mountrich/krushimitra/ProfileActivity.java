@@ -1,6 +1,7 @@
 package com.mountrich.krushimitra;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +15,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.target.Target;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -40,6 +44,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     private String userId;
     private Uri imageUri;
+    private ProgressBar imgProgress;
+
 
     private ActivityResultLauncher<String> imagePicker;
 
@@ -83,6 +89,8 @@ public class ProfileActivity extends AppCompatActivity {
         btnUpdate = findViewById(R.id.btnUpdateProfile);
         btnLogout = findViewById(R.id.btnLogout);
         profileProgressBar = findViewById(R.id.profileProgressBar);
+        imgProgress = findViewById(R.id.imgProgress);
+
     }
 
     private void initImagePicker() {
@@ -122,6 +130,9 @@ public class ProfileActivity extends AppCompatActivity {
         StorageReference imageRef =
                 storageRef.child("profile_images/" + userId + "_" + System.currentTimeMillis() + ".jpg");
 
+        imgProgress.setVisibility(View.VISIBLE);
+
+
         imageRef.putFile(imageUri)
                 .addOnSuccessListener(task ->
                         imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
@@ -130,7 +141,9 @@ public class ProfileActivity extends AppCompatActivity {
                                     .document(userId)
                                     .update("profileImage", uri.toString())
                                     .addOnSuccessListener(aVoid -> {
+                                        imgProgress.setVisibility(View.GONE);
                                         profileProgressBar.setVisibility(View.GONE);
+
                                         Toast.makeText(this,
                                                 "Profile photo updated",
                                                 Toast.LENGTH_SHORT).show();
@@ -138,11 +151,14 @@ public class ProfileActivity extends AppCompatActivity {
                         })
                 )
                 .addOnFailureListener(e -> {
+                    imgProgress.setVisibility(View.GONE);
                     profileProgressBar.setVisibility(View.GONE);
+
                     Toast.makeText(this,
                             "Upload failed",
                             Toast.LENGTH_SHORT).show();
                 });
+
     }
 
     // ---------------- LOAD DATA ----------------
@@ -162,13 +178,37 @@ public class ProfileActivity extends AppCompatActivity {
 
                         String imageUrl = doc.getString("profileImage");
                         if (imageUrl != null) {
+                            imgProgress.setVisibility(View.VISIBLE);
+
                             Glide.with(this)
                                     .load(imageUrl)
                                     .placeholder(R.drawable.krushi_img)
-                                    .skipMemoryCache(true)
-                                    .diskCacheStrategy(
-                                            com.bumptech.glide.load.engine.DiskCacheStrategy.NONE)
+                                    .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
+                                        @Override
+                                        public boolean onLoadFailed(
+                                                @androidx.annotation.Nullable GlideException e,
+                                                Object model,
+                                                Target<Drawable> target,
+                                                boolean isFirstResource) {
+
+                                            imgProgress.setVisibility(View.GONE);
+                                            return false;
+                                        }
+
+                                        @Override
+                                        public boolean onResourceReady(
+                                                android.graphics.drawable.Drawable resource,
+                                                Object model,
+                                                Target<android.graphics.drawable.Drawable> target,
+                                                DataSource dataSource,
+                                                boolean isFirstResource) {
+
+                                            imgProgress.setVisibility(View.GONE);
+                                            return false;
+                                        }
+                                    })
                                     .into(imgProfile);
+
                         }
                     }
 

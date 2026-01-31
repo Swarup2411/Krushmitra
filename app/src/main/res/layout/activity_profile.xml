@@ -31,11 +31,25 @@
                     android:padding="24dp"
                     android:gravity="center_horizontal">
 
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/imgProfile"
+                    <FrameLayout
                         android:layout_width="120dp"
-                        android:layout_height="120dp"
-                        android:src="@drawable/krushi_img" />
+                        android:layout_height="120dp">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/imgProfile"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/krushi_img"
+                            android:scaleType="centerCrop" />
+
+                        <ProgressBar
+                            android:id="@+id/imgProgress"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="center"
+                            android:visibility="gone"/>
+                    </FrameLayout>
+
 
                     <TextView
                         android:layout_width="wrap_content"
