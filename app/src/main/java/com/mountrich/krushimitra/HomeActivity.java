@@ -22,6 +22,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.mountrich.krushimitra.fragments.CartFragment;
 import com.mountrich.krushimitra.fragments.CropDoctorFragement;
 import com.mountrich.krushimitra.fragments.HomeFragment;
 import com.mountrich.krushimitra.fragments.MyOrdersFragment;
@@ -65,6 +66,11 @@ public class HomeActivity extends AppCompatActivity {
 
             if(item.getItemId() == R.id.nav_home){
                 fragment = new HomeFragment();
+
+            }
+
+            if(item.getItemId() == R.id.nav_cart){
+                fragment = new CartFragment();
 
             }
 
