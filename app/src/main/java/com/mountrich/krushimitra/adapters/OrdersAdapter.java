@@ -49,6 +49,9 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.Holder> {
             context.startActivity(i);
         });
 
+        h.txtPayment.setText(o.getPaymentMethod());
+
+
     }
 
     @Override
@@ -57,13 +60,14 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.Holder> {
     }
 
     static class Holder extends RecyclerView.ViewHolder {
-        TextView txtId, txtAmount, txtStatus;
+        TextView txtId, txtAmount, txtStatus,txtPayment;
 
         Holder(View v) {
             super(v);
             txtId = v.findViewById(R.id.txtOrderId);
             txtAmount = v.findViewById(R.id.txtOrderAmount);
             txtStatus = v.findViewById(R.id.txtOrderStatus);
+            txtPayment = v.findViewById(R.id.txtPayment);
         }
     }
 }

@@ -1,13 +1,10 @@
 package com.mountrich.krushimitra;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,7 +19,8 @@ import java.util.List;
 public class OrderDetailsActivity extends AppCompatActivity {
 
     RecyclerView rv;
-    TextView txtOrderId, txtStatus,txtTotalAmount;
+    TextView txtOrderId, txtOrderStatus, txtPaymentMethod,
+            txtPaymentStatus, txtTotalAmount;
 
     FirebaseFirestore db;
     List<CartItem> list = new ArrayList<>();
@@ -35,28 +33,26 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         rv = findViewById(R.id.rvOrderItems);
         txtOrderId = findViewById(R.id.txtOrderId);
-        txtStatus = findViewById(R.id.txtStatus);
+        txtOrderStatus = findViewById(R.id.txtOrderStatus);
+        txtPaymentMethod = findViewById(R.id.txtPaymentMethod);
+        txtPaymentStatus = findViewById(R.id.txtPaymentStatus);
         txtTotalAmount = findViewById(R.id.txtTotalAmount);
 
         rv.setLayoutManager(new LinearLayoutManager(this));
-
         adapter = new OrderItemsAdapter(this, list);
         rv.setAdapter(adapter);
 
         db = FirebaseFirestore.getInstance();
 
         String orderId = getIntent().getStringExtra("orderId");
-        String status = getIntent().getStringExtra("status");
 
         txtOrderId.setText("Order ID: " + orderId);
-        txtStatus.setText("Status: " + status);
 
         loadOrderDetails(orderId);
         loadOrderItems(orderId);
     }
 
     private void loadOrderItems(String orderId) {
-
         db.collection("orders")
                 .document(orderId)
                 .collection("items")
@@ -80,10 +76,24 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 .addOnSuccessListener(doc -> {
 
                     if (doc.exists()) {
-                        double total = doc.getDouble("totalAmount");
-                        txtTotalAmount.setText("Total: ₹ " + total);
+
+                        long total = doc.getLong("totalAmount");
+                        String orderStatus = doc.getString("status");
+                        String paymentStatus = doc.getString("paymentStatus");
+                        String paymentMethod = doc.getString("paymentMethod");
+
+                        txtOrderStatus.setText("Order Status : " + orderStatus);
+                        txtPaymentMethod.setText("Payment : " + paymentMethod);
+                        txtPaymentStatus.setText("Payment Status : " + paymentStatus);
+                        txtTotalAmount.setText("Total Amount : ₹ " + total);
+
+                        // Color logic
+                        if ("Pending".equals(paymentStatus)) {
+                            txtPaymentStatus.setTextColor(Color.parseColor("#D84315")); // Orange
+                        } else {
+                            txtPaymentStatus.setTextColor(Color.parseColor("#2E7D32")); // Green
+                        }
                     }
                 });
     }
-
 }

@@ -57,6 +57,13 @@
             android:textStyle="bold"
             android:layout_marginTop="6dp"/>
 
+        <TextView
+            android:id="@+id/txtPayment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="COD"
+            android:textStyle="bold"/>
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

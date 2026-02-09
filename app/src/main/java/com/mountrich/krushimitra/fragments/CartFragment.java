@@ -36,6 +36,8 @@ public class CartFragment extends Fragment {
 
     Button btnPlaceOrder;
 
+    boolean emptyToastShown = false;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -51,13 +53,18 @@ public class CartFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         rvCart.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new CartAdapter(getContext(), list, auth.getUid());
+        adapter = new CartAdapter(requireContext(), list, auth.getUid());
+
         rvCart.setAdapter(adapter);
 
 
         loadCart();
 
-        btnPlaceOrder.setOnClickListener(vi -> placeOrder());
+        btnPlaceOrder.setEnabled(false);
+        btnPlaceOrder.setAlpha(0.5f); // visually disabled
+
+        btnPlaceOrder.setOnClickListener(vi -> showPaymentDialog());
+
 
 
         return v;
@@ -69,7 +76,24 @@ public class CartFragment extends Fragment {
                 .document(auth.getUid())
                 .collection("items")
                 .addSnapshotListener((value, error) -> {
+                    if (value == null || value.isEmpty()) {
+                        list.clear();
+                        adapter.notifyDataSetChanged();
 
+                        txtTotal.setText("Total: ₹ 0");
+                        btnPlaceOrder.setEnabled(false);
+                        btnPlaceOrder.setAlpha(0.5f);
+
+                        if (!emptyToastShown && isAdded()) {
+                            Toast.makeText(getContext(),
+                                    "Cart is empty",
+                                    Toast.LENGTH_SHORT).show();
+                            emptyToastShown = true;
+                        }
+                        return;
+                    }
+
+                    emptyToastShown = false;
                     list.clear();
                     int total = 0;
 
@@ -77,25 +101,38 @@ public class CartFragment extends Fragment {
 
                         CartItem item = d.toObject(CartItem.class);
 
-                        // 🔥 THIS LINE FIXES YOUR CRASH
+                        if (item == null || item.getQuantity() <= 0) continue;
+
                         item.setProductId(d.getId());
-
-
                         list.add(item);
                         total += item.getPrice() * item.getQuantity();
                     }
 
                     txtTotal.setText("Total: ₹ " + total);
                     adapter.notifyDataSetChanged();
+
+                    btnPlaceOrder.setEnabled(!list.isEmpty());
+                    btnPlaceOrder.setAlpha(list.isEmpty() ? 0.5f : 1f);
                 });
     }
 
-    private void placeOrder() {
-        btnPlaceOrder.setEnabled(false);
 
-        String userId = FirebaseAuth.getInstance().getUid();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private void showPaymentDialog() {
 
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Select Payment Method")
+                .setMessage("Choose how you want to pay")
+                .setPositiveButton("Cash on Delivery", (d, w) -> {
+                    placeOrderCOD();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+
+    private void placeOrderCOD() {
+
+        String userId = auth.getUid();
         if (userId == null) return;
 
         db.collection("cart")
@@ -116,17 +153,25 @@ public class CartFragment extends Fragment {
                         Map<String, Object> item = d.getData();
                         orderItems.add(item);
 
-                        int price = d.getLong("price").intValue();
-                        int qty = d.getLong("quantity").intValue();
+                        Long priceL = d.getLong("price");
+                        Long qtyL = d.getLong("quantity");
+
+                        if (priceL == null || qtyL == null || qtyL <= 0) continue;
+
+                        int price = priceL.intValue();
+                        int qty = qtyL.intValue();
                         totalAmount += price * qty;
+
                     }
 
-                    // 🔥 Create Order
                     String orderId = db.collection("orders").document().getId();
 
                     Map<String, Object> order = new HashMap<>();
                     order.put("userId", userId);
+                    order.put("orderId", orderId);
                     order.put("totalAmount", totalAmount);
+                    order.put("paymentMethod", "COD");
+                    order.put("paymentStatus", "Pending");
                     order.put("status", "Placed");
                     order.put("timestamp", System.currentTimeMillis());
 
@@ -135,7 +180,6 @@ public class CartFragment extends Fragment {
                             .set(order)
                             .addOnSuccessListener(aVoid -> {
 
-                                // 🔥 Add items to order
                                 for (DocumentSnapshot d : query) {
                                     db.collection("orders")
                                             .document(orderId)
@@ -144,15 +188,15 @@ public class CartFragment extends Fragment {
                                             .set(d.getData());
                                 }
 
-                                // 🔥 Clear cart
                                 clearCart(userId);
 
                                 Toast.makeText(getContext(),
-                                        "Order Placed Successfully",
+                                        "Order placed with Cash on Delivery",
                                         Toast.LENGTH_LONG).show();
                             });
                 });
     }
+
 
     private void clearCart(String userId) {
 
