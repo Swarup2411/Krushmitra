@@ -25,7 +25,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.mountrich.krushimitra.fragments.CartFragment;
 import com.mountrich.krushimitra.fragments.CropDoctorFragement;
 import com.mountrich.krushimitra.fragments.HomeFragment;
-import com.mountrich.krushimitra.fragments.MyOrdersFragment;
+import com.mountrich.krushimitra.fragments.OrdersFragment;
 import com.mountrich.krushimitra.fragments.WeatherFragment;
 
 public class HomeActivity extends AppCompatActivity {
@@ -80,7 +80,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             if(item.getItemId() == R.id.nav_orders){
-                fragment = new MyOrdersFragment();
+                fragment = new OrdersFragment();
 
             }
 

@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -19,7 +21,9 @@ import com.mountrich.krushimitra.R;
 import com.mountrich.krushimitra.adapters.CartAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CartFragment extends Fragment {
 
@@ -30,6 +34,8 @@ public class CartFragment extends Fragment {
     List<CartItem> list = new ArrayList<>();
     CartAdapter adapter;
 
+    Button btnPlaceOrder;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -39,14 +45,20 @@ public class CartFragment extends Fragment {
         rvCart = v.findViewById(R.id.rvCart);
         txtTotal = v.findViewById(R.id.txtTotal);
 
-        auth = FirebaseAuth.getInstance();
+        btnPlaceOrder = v.findViewById(R.id.btnPlaceOrder);
+
+                auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
         rvCart.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new CartAdapter(getContext(), list, auth.getUid());
         rvCart.setAdapter(adapter);
 
+
         loadCart();
+
+        btnPlaceOrder.setOnClickListener(vi -> placeOrder());
+
 
         return v;
     }
@@ -65,8 +77,9 @@ public class CartFragment extends Fragment {
 
                         CartItem item = d.toObject(CartItem.class);
 
-                        // 🔥 VERY IMPORTANT
+                        // 🔥 THIS LINE FIXES YOUR CRASH
                         item.setProductId(d.getId());
+
 
                         list.add(item);
                         total += item.getPrice() * item.getQuantity();
@@ -77,4 +90,84 @@ public class CartFragment extends Fragment {
                 });
     }
 
+    private void placeOrder() {
+        btnPlaceOrder.setEnabled(false);
+
+        String userId = FirebaseAuth.getInstance().getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        if (userId == null) return;
+
+        db.collection("cart")
+                .document(userId)
+                .collection("items")
+                .get()
+                .addOnSuccessListener(query -> {
+
+                    if (query.isEmpty()) {
+                        Toast.makeText(getContext(), "Cart is empty", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    int totalAmount = 0;
+                    List<Map<String, Object>> orderItems = new ArrayList<>();
+
+                    for (DocumentSnapshot d : query) {
+                        Map<String, Object> item = d.getData();
+                        orderItems.add(item);
+
+                        int price = d.getLong("price").intValue();
+                        int qty = d.getLong("quantity").intValue();
+                        totalAmount += price * qty;
+                    }
+
+                    // 🔥 Create Order
+                    String orderId = db.collection("orders").document().getId();
+
+                    Map<String, Object> order = new HashMap<>();
+                    order.put("userId", userId);
+                    order.put("totalAmount", totalAmount);
+                    order.put("status", "Placed");
+                    order.put("timestamp", System.currentTimeMillis());
+
+                    db.collection("orders")
+                            .document(orderId)
+                            .set(order)
+                            .addOnSuccessListener(aVoid -> {
+
+                                // 🔥 Add items to order
+                                for (DocumentSnapshot d : query) {
+                                    db.collection("orders")
+                                            .document(orderId)
+                                            .collection("items")
+                                            .document(d.getId())
+                                            .set(d.getData());
+                                }
+
+                                // 🔥 Clear cart
+                                clearCart(userId);
+
+                                Toast.makeText(getContext(),
+                                        "Order Placed Successfully",
+                                        Toast.LENGTH_LONG).show();
+                            });
+                });
+    }
+
+    private void clearCart(String userId) {
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("cart")
+                .document(userId)
+                .collection("items")
+                .get()
+                .addOnSuccessListener(query -> {
+                    for (DocumentSnapshot d : query) {
+                        d.getReference().delete();
+                    }
+                });
+    }
+
 }
+

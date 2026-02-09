@@ -5,14 +5,49 @@
     android:layout_height="match_parent"
     tools:context=".fragments.MyOrdersFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        xmlns:android="http://schemas.android.com/apk/res/android"
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="Orders"
-        android:textSize="22sp"/>
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="#F5F5F5">
+
+        <!-- Screen Title -->
+        <TextView
+            android:id="@+id/txtTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="My Orders"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:textColor="#212121"
+            android:padding="8dp" />
+
+        <!-- Orders List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerOrders"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingTop="8dp"
+            android:clipToPadding="false" />
+
+        <!-- Empty State -->
+        <TextView
+            android:id="@+id/txtEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No orders yet"
+            android:textSize="16sp"
+            android:textColor="#757575"
+            android:gravity="center"
+            android:visibility="gone"
+            android:padding="16dp" />
+
+    </LinearLayout>
+
 
 
 </FrameLayout>

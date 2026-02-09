@@ -63,15 +63,12 @@
 
                 <!-- CHECKOUT BUTTON -->
                 <Button
-                    android:id="@+id/btnCheckout"
+                    android:id="@+id/btnPlaceOrder"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
                     android:text="Place Order"
-                    android:textAllCaps="false"
-                    android:textSize="16sp"
                     android:backgroundTint="#2E7D32"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"/>
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
