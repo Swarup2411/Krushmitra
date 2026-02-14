@@ -41,6 +41,35 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868232439980:android:ccb62d6d65c405f8825709",
+        "android_client_info": {
+          "package_name": "com.mountrich.krushimitraadminapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "868232439980-01ombidkub275b9lf4jip0r6p1jljiae.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrvmPCVQYt2GRRKe7b2YZQnar-xDRmvZ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "868232439980-01ombidkub275b9lf4jip0r6p1jljiae.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

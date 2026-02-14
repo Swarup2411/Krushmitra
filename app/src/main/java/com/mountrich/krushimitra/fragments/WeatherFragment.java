@@ -46,51 +46,50 @@ public class WeatherFragment extends Fragment {
 
     private static final String API_KEY = "1ecef33a983ec135fdd1f42844a86496";
 
-    private TextView tvTemperature, tvWeatherType, tvLocation,tvError;
+    private TextView tvTemperature, tvWeatherType, tvLocation, tvError;
     private TextView tvAdvice1, tvAdvice2;
     private ImageView imgWeather;
     private RecyclerView rvFiveDay;
     private ProgressBar progressBar;
-    View dummyLayout;
-    ScrollView layoutContent;
-
+    private View dummyLayout;
+    private ScrollView layoutContent;
 
     private FusedLocationProviderClient fusedLocationClient;
 
+    // ================= LIFECYCLE =================
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_weather, container, false);
 
-        // Views
         tvTemperature = view.findViewById(R.id.tvTemp);
         tvWeatherType = view.findViewById(R.id.tvWeatherType);
         tvLocation = view.findViewById(R.id.tvLocation);
-
         tvAdvice1 = view.findViewById(R.id.tvAdvice1);
         tvAdvice2 = view.findViewById(R.id.tvAdvice2);
         imgWeather = view.findViewById(R.id.imgWeather);
         rvFiveDay = view.findViewById(R.id.rvSevenDay);
         tvError = view.findViewById(R.id.tvError);
         progressBar = view.findViewById(R.id.progressBar);
-
         dummyLayout = view.findViewById(R.id.dummyLayout);
         layoutContent = view.findViewById(R.id.layoutContent);
-
 
         rvFiveDay.setLayoutManager(new LinearLayoutManager(getContext()));
 
         fusedLocationClient =
                 LocationServices.getFusedLocationProviderClient(requireActivity());
 
-
         dummyLayout.setVisibility(View.VISIBLE);
         layoutContent.setVisibility(View.GONE);
 
         getCurrentLocationWeather();
-
         return view;
+    }
+
+    // ================= SAFETY =================
+    private boolean isViewAlive() {
+        return isAdded() && getView() != null;
     }
 
     // ================= LOCATION =================
@@ -98,7 +97,8 @@ public class WeatherFragment extends Fragment {
 
         if (!isAdded() || getContext() == null) return;
 
-        if (ActivityCompat.checkSelfPermission(getContext(),
+        if (ActivityCompat.checkSelfPermission(
+                getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
@@ -109,15 +109,13 @@ public class WeatherFragment extends Fragment {
 
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(location -> {
-                    if (!isAdded() || location == null) return;
+                    if (!isViewAlive() || location == null) return;
 
                     fetchWeatherByLocation(
                             location.getLatitude(),
-                            location.getLongitude()
-                    );
+                            location.getLongitude());
                 });
     }
-
 
     // ================= API CALLS =================
     private void fetchWeatherByLocation(double lat, double lon) {
@@ -127,13 +125,12 @@ public class WeatherFragment extends Fragment {
         // ===== CURRENT WEATHER =====
         api.getCurrentWeather(lat, lon, "metric", API_KEY)
                 .enqueue(new Callback<CurrentWeatherResponse>() {
+
                     @Override
                     public void onResponse(Call<CurrentWeatherResponse> call,
                                            Response<CurrentWeatherResponse> response) {
 
-                        if (!isAdded() || getContext() == null) return;
-
-                        if (!response.isSuccessful() || response.body() == null) return;
+                        if (!isViewAlive() || response.body() == null) return;
 
                         dummyLayout.setVisibility(View.GONE);
                         layoutContent.setVisibility(View.VISIBLE);
@@ -144,14 +141,9 @@ public class WeatherFragment extends Fragment {
                         tvWeatherType.setText(data.weather.get(0).main);
                         tvLocation.setText(data.name);
 
-                        long time = data.dt * 1000L;
-//
-
                         String iconUrl =
                                 "https://openweathermap.org/img/wn/" +
                                         data.weather.get(0).icon + "@2x.png";
-
-                        if (!isAdded()) return;
 
                         Glide.with(getContext())
                                 .load(iconUrl)
@@ -162,48 +154,38 @@ public class WeatherFragment extends Fragment {
 
                     @Override
                     public void onFailure(Call<CurrentWeatherResponse> call, Throwable t) {
-                        t.printStackTrace();
+                        if (!isViewAlive()) return;
+
                         dummyLayout.setVisibility(View.GONE);
                         tvError.setVisibility(View.VISIBLE);
-
-
-                        Log.d("TAG", "onFailure: "+t.getMessage());
+                        Log.e("Weather", "Error", t);
                     }
-
                 });
 
-        // ===== FREE 5-DAY FORECAST =====
+        // ===== 5 DAY FORECAST =====
         api.getFiveDayForecast(lat, lon, "metric", API_KEY)
                 .enqueue(new Callback<ForecastResponse>() {
+
                     @Override
                     public void onResponse(Call<ForecastResponse> call,
                                            Response<ForecastResponse> response) {
 
-                        if (!isAdded() || getContext() == null) return;
-                        if (!response.isSuccessful() || response.body() == null) return;
+                        if (!isViewAlive() || response.body() == null) return;
 
                         List<DailyForecast> forecastList = new ArrayList<>();
                         Map<String, DailyForecast> dayMap = new LinkedHashMap<>();
 
                         int timezone = response.body().city.timezone;
 
-
-                        SimpleDateFormat input =
-                                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
                         SimpleDateFormat dayFormat =
                                 new SimpleDateFormat("EEE", Locale.getDefault());
-                        dayFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
                         for (ForecastResponse.ForecastItem item : response.body().list) {
 
-                            // pick midday data
                             if (!item.dt_txt.contains("12:00:00")) continue;
 
-                            long localTime =
-                                    (item.dt + timezone) * 1000L;
-
-                            String dayName =
-                                    dayFormat.format(new Date(localTime));
+                            long localTime = (item.dt + timezone) * 1000L;
+                            String dayName = dayFormat.format(new Date(localTime));
 
                             dayMap.put(dayName, new DailyForecast(
                                     item.dt,
@@ -216,27 +198,22 @@ public class WeatherFragment extends Fragment {
                             ));
                         }
 
-
                         forecastList.addAll(dayMap.values());
-
-                        if (!isAdded()) return;
-                        FiveDayForecastAdapter adapter =
-                                new FiveDayForecastAdapter(getContext(), forecastList);
-
-                        rvFiveDay.setAdapter(adapter);
+                        rvFiveDay.setAdapter(
+                                new FiveDayForecastAdapter(getContext(), forecastList));
                     }
 
                     @Override
                     public void onFailure(Call<ForecastResponse> call, Throwable t) {
-
+                        Log.e("Forecast", "Error", t);
                     }
                 });
     }
 
-
-
     // ================= FARMER ADVICE =================
     private void setFarmerAdvice(String condition) {
+
+        if (!isViewAlive()) return;
 
         if (condition.equalsIgnoreCase("Rain")) {
             tvAdvice1.setText("🚫 Do NOT spray pesticides");
@@ -250,8 +227,7 @@ public class WeatherFragment extends Fragment {
         }
     }
 
-
-    // ================= PERMISSION RESULT =================
+    // ================= PERMISSION =================
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,

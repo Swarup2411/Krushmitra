@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.google.firebase.firestore.ListenerRegistration;
+
 
 public class CartFragment extends Fragment {
 
@@ -37,6 +39,8 @@ public class CartFragment extends Fragment {
     Button btnPlaceOrder;
 
     boolean emptyToastShown = false;
+    ListenerRegistration cartListener;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,7 +57,8 @@ public class CartFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         rvCart.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new CartAdapter(requireContext(), list, auth.getUid());
+        adapter = new CartAdapter(getContext(), list, auth.getUid());
+
 
         rvCart.setAdapter(adapter);
 
@@ -70,12 +75,23 @@ public class CartFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (cartListener != null) {
+            cartListener.remove();
+        }
+    }
+
     private void loadCart() {
 
-        db.collection("cart")
+        cartListener = db.collection("cart")
                 .document(auth.getUid())
                 .collection("items")
                 .addSnapshotListener((value, error) -> {
+
+                    if (!isAdded() || getContext() == null) return;
+
                     if (value == null || value.isEmpty()) {
                         list.clear();
                         adapter.notifyDataSetChanged();
@@ -84,7 +100,7 @@ public class CartFragment extends Fragment {
                         btnPlaceOrder.setEnabled(false);
                         btnPlaceOrder.setAlpha(0.5f);
 
-                        if (!emptyToastShown && isAdded()) {
+                        if (!emptyToastShown) {
                             Toast.makeText(getContext(),
                                     "Cart is empty",
                                     Toast.LENGTH_SHORT).show();
@@ -100,7 +116,6 @@ public class CartFragment extends Fragment {
                     for (DocumentSnapshot d : value) {
 
                         CartItem item = d.toObject(CartItem.class);
-
                         if (item == null || item.getQuantity() <= 0) continue;
 
                         item.setProductId(d.getId());
@@ -108,18 +123,19 @@ public class CartFragment extends Fragment {
                         total += item.getPrice() * item.getQuantity();
                     }
 
-                    txtTotal.setText("Total: ₹ " + total);
+                    txtTotal.setText(" ₹ " + total);
                     adapter.notifyDataSetChanged();
 
-                    btnPlaceOrder.setEnabled(!list.isEmpty());
-                    btnPlaceOrder.setAlpha(list.isEmpty() ? 0.5f : 1f);
+                    btnPlaceOrder.setEnabled(true);
+                    btnPlaceOrder.setAlpha(1f);
                 });
     }
 
 
+
     private void showPaymentDialog() {
 
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        new androidx.appcompat.app.AlertDialog.Builder(getContext())
                 .setTitle("Select Payment Method")
                 .setMessage("Choose how you want to pay")
                 .setPositiveButton("Cash on Delivery", (d, w) -> {
