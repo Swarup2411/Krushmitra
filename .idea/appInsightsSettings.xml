@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.mountrich.krushimitra" />
+                  <option name="mobileSdkAppId" value="1:868232439980:android:296bca0a74ba3bd4825709" />
+                  <option name="projectId" value="krushimitra-73dc8" />
+                  <option name="projectNumber" value="868232439980" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

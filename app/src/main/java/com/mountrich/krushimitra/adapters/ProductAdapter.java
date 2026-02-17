@@ -57,6 +57,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
     private void addToCart(Product p) {
         String uid = auth.getUid();
 
+        if (uid == null) {
+            Toast.makeText(context,
+                    "Please login first",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Map<String, Object> map = new HashMap<>();
         map.put("name", p.getName());
         map.put("price", p.getPrice());

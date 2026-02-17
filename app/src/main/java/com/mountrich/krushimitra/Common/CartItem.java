@@ -21,5 +21,22 @@ public class CartItem {
     public int getPrice() { return price; }
     public String getImageUrl() { return imageUrl; }
     public int getQuantity() { return quantity; }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
 }
 

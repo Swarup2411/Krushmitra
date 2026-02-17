@@ -2,6 +2,8 @@ package com.mountrich.krushimitra;
 
 import static android.view.View.GONE;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -59,7 +61,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        progressBar = findViewById(R.id.registerProgressbar);
+
         edtNameRegister = findViewById(R.id.edtNameRegister);
         edtMobileRegister = findViewById(R.id.edtMobileRegister);
         edtEmailRegister = findViewById(R.id.edtEmailRegister);

@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -166,6 +167,7 @@ public class CartFragment extends Fragment {
                     List<Map<String, Object>> orderItems = new ArrayList<>();
 
                     for (DocumentSnapshot d : query) {
+
                         Map<String, Object> item = d.getData();
                         orderItems.add(item);
 
@@ -174,10 +176,7 @@ public class CartFragment extends Fragment {
 
                         if (priceL == null || qtyL == null || qtyL <= 0) continue;
 
-                        int price = priceL.intValue();
-                        int qty = qtyL.intValue();
-                        totalAmount += price * qty;
-
+                        totalAmount += priceL.intValue() * qtyL.intValue();
                     }
 
                     String orderId = db.collection("orders").document().getId();
@@ -190,28 +189,22 @@ public class CartFragment extends Fragment {
                     order.put("paymentStatus", "Pending");
                     order.put("status", "Placed");
                     order.put("timestamp", System.currentTimeMillis());
+                    order.put("items", orderItems);   // ✅ FIXED
 
                     db.collection("orders")
                             .document(orderId)
                             .set(order)
                             .addOnSuccessListener(aVoid -> {
 
-                                for (DocumentSnapshot d : query) {
-                                    db.collection("orders")
-                                            .document(orderId)
-                                            .collection("items")
-                                            .document(d.getId())
-                                            .set(d.getData());
-                                }
-
                                 clearCart(userId);
 
                                 Toast.makeText(getContext(),
-                                        "Order placed with Cash on Delivery",
+                                        "Order placed successfully",
                                         Toast.LENGTH_LONG).show();
                             });
                 });
     }
+
 
 
     private void clearCart(String userId) {

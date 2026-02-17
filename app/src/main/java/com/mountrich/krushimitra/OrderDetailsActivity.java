@@ -2,6 +2,7 @@ package com.mountrich.krushimitra;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import com.mountrich.krushimitra.adapters.OrderItemsAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class OrderDetailsActivity extends AppCompatActivity {
 
@@ -50,23 +52,57 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         loadOrderDetails(orderId);
         loadOrderItems(orderId);
+
+
     }
 
     private void loadOrderItems(String orderId) {
+
         db.collection("orders")
                 .document(orderId)
-                .collection("items")
                 .get()
-                .addOnSuccessListener(query -> {
+                .addOnSuccessListener(doc -> {
+
+                    if (!doc.exists()) return;
 
                     list.clear();
-                    for (DocumentSnapshot d : query) {
-                        CartItem item = d.toObject(CartItem.class);
-                        list.add(item);
+
+                    List<Map<String, Object>> items =
+                            (List<Map<String, Object>>) doc.get("items");
+
+                    if (items != null) {
+
+                        for (Map<String, Object> map : items) {
+
+                            CartItem item = new CartItem();
+
+                            item.setName((String) map.get("name"));
+                            item.setImageUrl((String) map.get("imageUrl"));
+
+                            Object priceObj = map.get("price");
+                            Object qtyObj = map.get("quantity");
+
+                            if (priceObj instanceof Long) {
+                                item.setPrice(((Long) priceObj).intValue());
+                            } else if (priceObj instanceof Double) {
+                                item.setPrice(((Double) priceObj).intValue());
+                            }
+
+                            if (qtyObj instanceof Long) {
+                                item.setQuantity(((Long) qtyObj).intValue());
+                            } else if (qtyObj instanceof Double) {
+                                item.setQuantity(((Double) qtyObj).intValue());
+                            }
+
+                            list.add(item);
+                        }
                     }
+
                     adapter.notifyDataSetChanged();
                 });
     }
+
+
 
     private void loadOrderDetails(String orderId) {
 

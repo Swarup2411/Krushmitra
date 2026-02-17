@@ -2,6 +2,7 @@ package com.mountrich.krushimitra.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +50,11 @@ public class OrderItemsAdapter extends RecyclerView.Adapter<OrderItemsAdapter.VH
         Glide.with(context)
                 .load(item.getImageUrl())
                 .placeholder(R.drawable.krushi_img)
+                .error(R.drawable.krushi_img)
                 .into(h.imgProduct);
+
+
+
     }
 
     @Override

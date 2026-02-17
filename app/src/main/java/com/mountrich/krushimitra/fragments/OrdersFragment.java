@@ -1,5 +1,6 @@
 package com.mountrich.krushimitra.fragments;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.mountrich.krushimitra.R;
@@ -65,22 +67,19 @@ public class OrdersFragment extends Fragment {
 
         db.collection("orders")
                 .whereEqualTo("userId", userId)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .addSnapshotListener((snapshots, error) -> {
-
-                    if (error != null || snapshots == null) {
-                        return;
-                    }
+//                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .get()
+                .addOnSuccessListener(snapshots -> {
 
                     orderList.clear();
 
-                    snapshots.getDocuments().forEach(doc -> {
+                    for (DocumentSnapshot doc : snapshots.getDocuments()) {
                         Order order = doc.toObject(Order.class);
                         if (order != null) {
                             order.setOrderId(doc.getId());
                             orderList.add(order);
                         }
-                    });
+                    }
 
                     adapter.notifyDataSetChanged();
 
@@ -93,4 +92,5 @@ public class OrdersFragment extends Fragment {
                     }
                 });
     }
+
 }
