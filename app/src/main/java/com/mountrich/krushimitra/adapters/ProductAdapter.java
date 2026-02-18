@@ -1,6 +1,7 @@
 package com.mountrich.krushimitra.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.mountrich.krushimitra.ProductDetailsActivity;
 import com.mountrich.krushimitra.R;
 import com.mountrich.krushimitra.models.Product;
 import com.squareup.picasso.Picasso;
@@ -51,7 +53,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         h.price.setText("₹ " + p.getPrice());
         Picasso.get().load(p.getImageUrl()).into(h.image);
 
-        h.addCart.setOnClickListener(v -> addToCart(p));
+//        h.addCart.setOnClickListener(v -> addToCart(p));
+
+        h.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ProductDetailsActivity.class);
+            intent.putExtra("productId", p.getId());
+            context.startActivity(intent);
+        });
+
     }
 
     private void addToCart(Product p) {
@@ -95,7 +104,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             image = v.findViewById(R.id.imgProduct);
             name = v.findViewById(R.id.txtName);
             price = v.findViewById(R.id.txtPrice);
-            addCart = v.findViewById(R.id.btnAddCart);
+
         }
     }
 }
