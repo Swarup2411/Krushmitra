@@ -2,6 +2,11 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }// Apply the Android application plugin
 apply plugin: 'com.android.application'
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
 
 android {
     namespace 'com.mountrich.krushimitra'
@@ -15,8 +20,14 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "WEATHER_API_KEY", "\"${localProperties['WEATHER_API_KEY']}\""
+
     }
 
+
+    buildFeatures {
+        buildConfig true
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -80,6 +91,11 @@ dependencies {
 
     //material design
     implementation "com.google.android.material:material:1.11.0"
+
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+
 
 
 

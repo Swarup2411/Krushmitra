@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.mountrich.krushimitra.BuildConfig;
+
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.mountrich.krushimitra.R;
@@ -42,9 +44,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+
 public class WeatherFragment extends Fragment {
 
-    private static final String API_KEY = "1ecef33a983ec135fdd1f42844a86496";
+
+    private static final String API_KEY = BuildConfig.WEATHER_API_KEY;
+
 
     private TextView tvTemperature, tvWeatherType, tvLocation, tvError;
     private TextView tvAdvice1, tvAdvice2;
@@ -114,6 +119,14 @@ public class WeatherFragment extends Fragment {
                     fetchWeatherByLocation(
                             location.getLatitude(),
                             location.getLongitude());
+
+                    fetchWeatherByLocation(18.5204, 73.8567);
+
+
+                    Log.d("LOCATION", "Location: " + location);
+                    Log.d("API_KEY_CHECK", API_KEY);
+
+
                 });
     }
 
@@ -137,6 +150,10 @@ public class WeatherFragment extends Fragment {
 
                         CurrentWeatherResponse data = response.body();
 
+                        Log.d("API_DEBUG", "Code: " + response.code());
+                        Log.d("API_DEBUG", "Body: " + response.body());
+
+
                         tvTemperature.setText(Math.round(data.main.temp) + "°C");
                         tvWeatherType.setText(data.weather.get(0).main);
                         tvLocation.setText(data.name);
@@ -158,7 +175,8 @@ public class WeatherFragment extends Fragment {
 
                         dummyLayout.setVisibility(View.GONE);
                         tvError.setVisibility(View.VISIBLE);
-                        Log.e("Weather", "Error", t);
+                        Log.e("Weather", "Error"+t.getMessage().toString());
+
                     }
                 });
 
