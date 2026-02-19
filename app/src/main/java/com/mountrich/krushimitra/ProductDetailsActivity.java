@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.mountrich.krushimitra.models.Product;
 import android.content.Intent;
@@ -145,6 +146,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         btnAddCart.setOnClickListener(v -> {
 
+            if (currentProduct == null) {
+                Toast.makeText(this, "Product not loaded yet", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if (auth.getCurrentUser() == null) {
                 Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
                 return;
@@ -160,22 +166,45 @@ public class ProductDetailsActivity extends AppCompatActivity {
             cartItem.put("quantity", quantity);
             cartItem.put("timestamp", FieldValue.serverTimestamp());
 
-            db.collection("users")
+            DocumentReference cartRef = db.collection("cart")
                     .document(userId)
-                    .collection("cart")
-                    .document(productId)
-                    .set(cartItem)
-                    .addOnSuccessListener(unused ->
-                            Toast.makeText(this,
-                                    "Added to Cart",
-                                    Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this,
-                                    "Failed to add cart",
-                                    Toast.LENGTH_SHORT).show());
+                    .collection("items")
+                    .document(productId);   // ✅ FIXED HERE
+
+            cartRef.get().addOnSuccessListener(snapshot -> {
+
+                if (snapshot.exists()) {
+                    // If already in cart → increase quantity
+                    Long oldQty = snapshot.getLong("quantity");
+                    long newQty = (oldQty != null ? oldQty : 0) + quantity;
+
+                    cartRef.update("quantity", newQty)
+                            .addOnSuccessListener(a ->
+                                    Toast.makeText(this, "Quantity Updated", Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+
+                } else {
+                    // If not in cart → create new item
+                    cartRef.set(cartItem)
+                            .addOnSuccessListener(a ->
+                                    Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                }
+
+            }).addOnFailureListener(e ->
+                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
         });
 
+
+
         btnBuyNow.setOnClickListener(v -> {
+
+            if (currentProduct == null) {
+                Toast.makeText(this, "Product not loaded yet", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             if (auth.getCurrentUser() == null) {
                 Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
@@ -187,6 +216,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
             intent.putExtra("quantity", quantity);
             startActivity(intent);
         });
+
 
     }
 
@@ -209,6 +239,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
                         Product product = documentSnapshot.toObject(Product.class);
 
                         if (product != null) {
+
+                            currentProduct = product;
                             txtName.setText(product.getName());
                             txtPrice.setText("₹" + product.getPrice());
                             txtDescription.setText(product.getDescription());

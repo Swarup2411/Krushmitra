@@ -86,8 +86,11 @@ public class CartFragment extends Fragment {
 
     private void loadCart() {
 
+        String userId = auth.getUid();
+        if (userId == null) return;
+
         cartListener = db.collection("cart")
-                .document(auth.getUid())
+                .document(userId)
                 .collection("items")
                 .addSnapshotListener((value, error) -> {
 
@@ -188,8 +191,8 @@ public class CartFragment extends Fragment {
                     order.put("paymentMethod", "COD");
                     order.put("paymentStatus", "Pending");
                     order.put("status", "Placed");
-                    order.put("timestamp", System.currentTimeMillis());
-                    order.put("items", orderItems);   // ✅ FIXED
+                    order.put("timestamp", com.google.firebase.firestore.FieldValue.serverTimestamp());
+                    order.put("items", orderItems);
 
                     db.collection("orders")
                             .document(orderId)
