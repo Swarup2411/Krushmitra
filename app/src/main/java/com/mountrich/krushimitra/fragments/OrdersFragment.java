@@ -67,19 +67,24 @@ public class OrdersFragment extends Fragment {
 
         db.collection("orders")
                 .whereEqualTo("userId", userId)
-//                .orderBy("timestamp", Query.Direction.DESCENDING)
+// ////               .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(snapshots -> {
 
                     orderList.clear();
 
-                    for (DocumentSnapshot doc : snapshots.getDocuments()) {
-                        Order order = doc.toObject(Order.class);
-                        if (order != null) {
-                            order.setOrderId(doc.getId());
-                            orderList.add(order);
+                    for (DocumentSnapshot doc : snapshots) {
+                        try {
+                            Order order = doc.toObject(Order.class);
+                            if (order != null) {
+                                order.setOrderId(doc.getId());
+                                orderList.add(order);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
+
 
                     adapter.notifyDataSetChanged();
 

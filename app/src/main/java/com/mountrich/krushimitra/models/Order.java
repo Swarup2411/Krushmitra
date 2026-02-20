@@ -1,22 +1,25 @@
 package com.mountrich.krushimitra.models;
 
+import com.google.firebase.Timestamp;
+import java.util.List;
+import java.util.Map;
+
 public class Order {
 
     private String orderId;
     private String userId;
-
     private int totalAmount;
+    private String status;
+    private String paymentMethod;
+    private String paymentStatus;
+    private Timestamp timestamp;
+    private List<Map<String, Object>> items;
 
-    private String paymentMethod;   // COD
-    private String paymentStatus;   // Pending / Paid
+    // 🔥 REQUIRED empty constructor
+    public Order() {
+    }
 
-    private String status;           // Placed / Shipped / Delivered
-    private long timestamp;
-
-    // 🔹 Required empty constructor for Firestore
-    public Order() {}
-
-    // 🔹 Getters & Setters
+    // Getters & Setters
 
     public String getOrderId() {
         return orderId;
@@ -30,12 +33,12 @@ public class Order {
         return userId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     public int getTotalAmount() {
         return totalAmount;
+    }
+
+    public String getStatus() {
+        return status;
     }
 
     public String getPaymentMethod() {
@@ -46,11 +49,11 @@ public class Order {
         return paymentStatus;
     }
 
-    public String getStatus() {
-        return status;
+    public Timestamp getTimestamp() {
+        return timestamp;
     }
 
-    public long getTimestamp() {
-        return timestamp;
+    public List<Map<String, Object>> getItems() {
+        return items;
     }
 }
