@@ -100,34 +100,37 @@ public class WeatherFragment extends Fragment {
     // ================= LOCATION =================
     private void getCurrentLocationWeather() {
 
-        if (!isAdded() || getContext() == null) return;
+//        if (!isAdded() || getContext() == null) return;
+//
+//        if (ActivityCompat.checkSelfPermission(
+//                getContext(),
+//                Manifest.permission.ACCESS_FINE_LOCATION)
+//                != PackageManager.PERMISSION_GRANTED) {
+//
+//            requestPermissions(
+//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+//            return;
+//        }
 
-        if (ActivityCompat.checkSelfPermission(
-                getContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+//        fusedLocationClient.getLastLocation()
+//                .addOnSuccessListener(location -> {
+//                    if (!isViewAlive() || location == null) return;
+//
+//                    if (location != null) {
+//                        fetchWeatherByLocation(location.getLatitude(), location.getLongitude());
+//                    } else {
+//
+//                    }
+//
+//
+//                    Log.d("LOCATION", "Location: " + location);
+//                    Log.d("API_KEY_CHECK", API_KEY);
+//
 
-            requestPermissions(
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
-            return;
-        }
+//                });
 
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(location -> {
-                    if (!isViewAlive() || location == null) return;
+        fetchWeatherByLocation(19.6130, 75.7891); // fallback Ambad
 
-                    fetchWeatherByLocation(
-                            location.getLatitude(),
-                            location.getLongitude());
-
-                    fetchWeatherByLocation(18.5204, 73.8567);
-
-
-                    Log.d("LOCATION", "Location: " + location);
-                    Log.d("API_KEY_CHECK", API_KEY);
-
-
-                });
     }
 
     // ================= API CALLS =================
@@ -135,6 +138,7 @@ public class WeatherFragment extends Fragment {
 
         WeatherApi api = RetrofitClient.getClient().create(WeatherApi.class);
 
+        progressBar.setVisibility(View.VISIBLE);
         // ===== CURRENT WEATHER =====
         api.getCurrentWeather(lat, lon, "metric", API_KEY)
                 .enqueue(new Callback<CurrentWeatherResponse>() {
@@ -142,43 +146,54 @@ public class WeatherFragment extends Fragment {
                     @Override
                     public void onResponse(Call<CurrentWeatherResponse> call,
                                            Response<CurrentWeatherResponse> response) {
+                        progressBar.setVisibility(View.GONE);
+                        if (!response.isSuccessful()) {
+                            dummyLayout.setVisibility(View.GONE);
+                            tvError.setVisibility(View.VISIBLE);
+                            tvError.setText("Unable to load weather. Please try again.");
+                            Log.e("API_ERROR", "Code: " + response.code());
+                            return;
+                        }
 
-                        if (!isViewAlive() || response.body() == null) return;
+                        if (response.isSuccessful() && response.body() != null){
+                            dummyLayout.setVisibility(View.GONE);
+                            layoutContent.setVisibility(View.VISIBLE);
 
-                        dummyLayout.setVisibility(View.GONE);
-                        layoutContent.setVisibility(View.VISIBLE);
+                            CurrentWeatherResponse data = response.body();
 
-                        CurrentWeatherResponse data = response.body();
-
-                        Log.d("API_DEBUG", "Code: " + response.code());
-                        Log.d("API_DEBUG", "Body: " + response.body());
+                            Log.d("API_DEBUG", "Code: " + response.code());
+                            Log.d("API_DEBUG", "Body: " + response.body());
 
 
-                        tvTemperature.setText(Math.round(data.main.temp) + "°C");
-                        tvWeatherType.setText(data.weather.get(0).main);
-                        tvLocation.setText(data.name);
+                            tvTemperature.setText(Math.round(data.main.temp) + "°C");
+                            tvWeatherType.setText(data.weather.get(0).main);
+                            tvLocation.setText(data.name);
 
-                        String iconUrl =
-                                "https://openweathermap.org/img/wn/" +
-                                        data.weather.get(0).icon + "@2x.png";
+                            String iconUrl =
+                                    "https://openweathermap.org/img/wn/" +
+                                            data.weather.get(0).icon + "@2x.png";
 
-                        Glide.with(getContext())
-                                .load(iconUrl)
-                                .into(imgWeather);
+                            Glide.with(getContext())
+                                    .load(iconUrl)
+                                    .into(imgWeather);
 
-                        setFarmerAdvice(data.weather.get(0).main);
+                            setFarmerAdvice(data.weather.get(0).main);
+                        }
+
                     }
 
                     @Override
                     public void onFailure(Call<CurrentWeatherResponse> call, Throwable t) {
+                        progressBar.setVisibility(View.GONE);
                         if (!isViewAlive()) return;
 
                         dummyLayout.setVisibility(View.GONE);
                         tvError.setVisibility(View.VISIBLE);
-                        Log.e("Weather", "Error"+t.getMessage().toString());
+                        Log.e("Weather", "Error: ", t);
 
                     }
                 });
+        progressBar.setVisibility(View.VISIBLE);
 
         // ===== 5 DAY FORECAST =====
         api.getFiveDayForecast(lat, lon, "metric", API_KEY)
@@ -188,7 +203,13 @@ public class WeatherFragment extends Fragment {
                     public void onResponse(Call<ForecastResponse> call,
                                            Response<ForecastResponse> response) {
 
-                        if (!isViewAlive() || response.body() == null) return;
+                        if (!response.isSuccessful()) {
+                            dummyLayout.setVisibility(View.GONE);
+                            tvError.setVisibility(View.VISIBLE);
+                            tvError.setText("Error Code: " + response.code());
+                            Log.e("API_ERROR", "Code: " + response.code());
+                            return;
+                        }
 
                         List<DailyForecast> forecastList = new ArrayList<>();
                         Map<String, DailyForecast> dayMap = new LinkedHashMap<>();

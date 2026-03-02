@@ -2,172 +2,178 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#03A9F4">
+    android:background="@drawable/bg_weather_gradient">
 
+    <!-- Dummy Layout -->
     <include
         android:id="@+id/dummyLayout"
         layout="@layout/layout_weather_dummy"
         android:visibility="visible"/>
 
-
-    <!-- 🌾 MAIN CONTENT -->
+    <!-- Main Content -->
     <ScrollView
         android:id="@+id/layoutContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="20dp">
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
-
-            <!-- 📍 LOCATION -->
+            <!-- Location -->
             <TextView
                 android:id="@+id/tvLocation"
-                android:text=" Ambad, Maharashtra"
-                android:textSize="20sp"
+                android:text="Ambad, Maharashtra"
+                android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF"
+                android:textColor="@android:color/white"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="20dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp" />
+                android:layout_height="wrap_content"/>
 
-            <!-- ☁ ICON + TEMP -->
+            <!-- Weather Card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingStart="70dp"
-                android:layout_marginBottom="12dp">
+                android:background="@drawable/bg_glass_card"
+                android:padding="20dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="20dp">
 
-                <ImageView
-                    android:id="@+id/imgWeather"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:src="@drawable/weather_icon" />
+                <!-- Icon + Temp -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
+                    <ImageView
+                        android:id="@+id/imgWeather"
+                        android:layout_width="90dp"
+                        android:layout_height="90dp"
+                        android:src="@drawable/weather_icon"/>
+
+                    <TextView
+                        android:id="@+id/tvTemp"
+                        android:text="29°C"
+                        android:textSize="42sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:layout_marginStart="16dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <!-- Weather Type -->
                 <TextView
-                    android:id="@+id/tvTemp"
-                    android:text="29°C"
-                    android:textSize="36sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:layout_marginStart="16dp"
+                    android:id="@+id/tvWeatherType"
+                    android:text="Cloudy"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/white"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"/>
+
+                <!-- Rain & Wind -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp">
+
+                    <TextView
+                        android:id="@+id/tvRain"
+                        android:text="🌧 70%"
+                        android:textColor="@android:color/white"
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvWind"
+                        android:text="🌬 11 km/h"
+                        android:textColor="@android:color/white"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- ☁ WEATHER TYPE -->
-            <TextView
-                android:id="@+id/tvWeatherType"
-                android:text="☁ Cloudy"
-                android:textSize="18sp"
-                android:textColor="#ffffff"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp" />
-
-            <!-- 🌧 RAIN + 🌬 WIND -->
+            <!-- Farmer Advice Card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:id="@+id/tvRain"
-                    android:text="🌧 Rain: High (70%)"
-                    android:textSize="16sp"
-                    android:textColor="#FFFFFF"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/tvWind"
-                    android:text="🌬 Wind: 11 km/h"
-                    android:textSize="16sp"
-                    android:textColor="#FFFFFF"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <!-- ⚠ FARMER ADVICE -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_card_radius"
-                android:padding="16dp"
-
+                android:background="@drawable/bg_white_card"
+                android:padding="20dp"
                 android:orientation="vertical"
                 android:layout_marginBottom="20dp">
 
                 <TextView
-                    android:text="⚠ FARMER ADVICE"
+                    android:text="🌾 Farmer Advice"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="#FFCA28"
+                    android:textColor="#2E7D32"
+                    android:layout_marginBottom="10dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_height="wrap_content"/>
 
                 <TextView
                     android:id="@+id/tvAdvice1"
-                    android:text="🚫 Do NOT spray pesticides today"
+                    android:text="Do NOT spray pesticides"
                     android:textSize="16sp"
                     android:textColor="#000"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"/>
 
                 <TextView
                     android:id="@+id/tvAdvice2"
-                    android:text="🌱 Good moisture for crops"
+                    android:text="Good soil moisture"
                     android:textSize="16sp"
                     android:textColor="#000"
+                    android:layout_marginTop="6dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
-            <!-- 📅 FORECAST -->
+            <!-- Forecast -->
             <TextView
                 android:text="📅 5-Day Forecast"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF"
+                android:textColor="@android:color/white"
+                android:layout_marginBottom="12dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp" />
+                android:layout_height="wrap_content"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvSevenDay"
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- ⏳ LOADING -->
+    <!-- Progress -->
     <ProgressBar
         android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
-    <!-- ❌ ERROR -->
+    <!-- Error -->
     <TextView
         android:id="@+id/tvError"
-        android:text="No internet connection"
-        android:textColor="#FFFFFF"
+        android:text="Unable to load weather"
+        android:textColor="@android:color/white"
         android:textSize="16sp"
         android:layout_gravity="center"
         android:visibility="gone"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
 </FrameLayout>
