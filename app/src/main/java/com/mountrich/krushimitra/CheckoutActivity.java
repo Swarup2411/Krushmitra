@@ -1,10 +1,14 @@
 package com.mountrich.krushimitra;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,7 +29,7 @@ import java.util.Map;
 public class CheckoutActivity extends AppCompatActivity {
 
     RecyclerView rvCheckout;
-    TextView txtTotalAmount;
+    TextView txtTotalAmount, txtSelectAddress;
     Button btnConfirmOrder;
 
     FirebaseFirestore db;
@@ -35,7 +39,9 @@ public class CheckoutActivity extends AppCompatActivity {
     CartAdapter adapter;
 
     int totalAmount = 0;
+    TextView txtSelctedAddress;
 
+    private ActivityResultLauncher<Intent> addressLauncher;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +60,18 @@ public class CheckoutActivity extends AppCompatActivity {
         loadCartItems();
 
         btnConfirmOrder.setOnClickListener(v -> placeOrder());
+        loadDefaultAddress();
 
+        addressLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+
+                        String address = result.getData().getStringExtra("selectedAddress");
+
+                        txtSelctedAddress.setText(address);
+                    }
+                });
 
     }
 
@@ -65,6 +82,7 @@ public class CheckoutActivity extends AppCompatActivity {
 
         rvCheckout.setLayoutManager(new LinearLayoutManager(this));
         String userId = auth.getUid();
+        txtSelctedAddress = findViewById(R.id.txtSelectedAddress);
         if (userId == null) {
             finish();
             return;
@@ -80,29 +98,25 @@ public class CheckoutActivity extends AppCompatActivity {
         String userId = auth.getUid();
         if (userId == null) return;
 
-        db.collection("cart")
-                .document(userId)
-                .collection("items")
-                .get()
-                .addOnSuccessListener(query -> {
+        db.collection("cart").document(userId).collection("items").get().addOnSuccessListener(query -> {
 
-                    list.clear();
-                    totalAmount = 0;
+            list.clear();
+            totalAmount = 0;
 
-                    for (DocumentSnapshot d : query) {
+            for (DocumentSnapshot d : query) {
 
-                        CartItem item = d.toObject(CartItem.class);
-                        if (item == null) continue;
+                CartItem item = d.toObject(CartItem.class);
+                if (item == null) continue;
 
-                        item.setProductId(d.getId());
-                        list.add(item);
+                item.setProductId(d.getId());
+                list.add(item);
 
-                        totalAmount += item.getPrice() * item.getQuantity();
-                    }
+                totalAmount += item.getPrice() * item.getQuantity();
+            }
 
-                    txtTotalAmount.setText("Total: ₹ " + totalAmount);
-                    adapter.notifyDataSetChanged();
-                });
+            txtTotalAmount.setText("Total: ₹ " + totalAmount);
+            adapter.notifyDataSetChanged();
+        });
     }
 
     private void placeOrder() {
@@ -125,7 +139,7 @@ public class CheckoutActivity extends AppCompatActivity {
         order.put("paymentMethod", "COD");
         order.put("paymentStatus", "Pending");
         order.put("timestamp", FieldValue.serverTimestamp());
-
+        order.put("deliveryAddress", txtSelctedAddress.getText().toString());
         List<Map<String, Object>> orderItems = new ArrayList<>();
 
         for (CartItem item : list) {
@@ -140,40 +154,61 @@ public class CheckoutActivity extends AppCompatActivity {
 
         order.put("items", orderItems);
 
-        db.collection("orders")
-                .document(orderId)
-                .set(order)
-                .addOnSuccessListener(unused -> {
+        db.collection("orders").document(orderId).set(order).addOnSuccessListener(unused -> {
 
-                    clearCart(userId);
+            clearCart(userId);
 
-                    Toast.makeText(this,
-                            "Order Placed Successfully",
-                            Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Order Placed Successfully", Toast.LENGTH_LONG).show();
 
-                    finish();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this,
-                                "Order Failed",
-                                Toast.LENGTH_SHORT).show());
+            finish();
+        }).addOnFailureListener(e -> Toast.makeText(this, "Order Failed", Toast.LENGTH_SHORT).show());
     }
 
     private void clearCart(String userId) {
 
-        db.collection("cart")
-                .document(userId)
-                .collection("items")
-                .get()
-                .addOnSuccessListener(query -> {
+        db.collection("cart").document(userId).collection("items").get().addOnSuccessListener(query -> {
 
-                    WriteBatch batch = db.batch();
+            WriteBatch batch = db.batch();
 
-                    for (DocumentSnapshot d : query) {
-                        batch.delete(d.getReference());
+            for (DocumentSnapshot d : query) {
+                batch.delete(d.getReference());
+            }
+
+            batch.commit();
+        });
+    }
+
+    private void loadDefaultAddress() {
+
+        String userId = auth.getUid();
+        if (userId == null) return;
+
+        // Always allow click
+        txtSelctedAddress.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SelectAddressActivity.class);
+            addressLauncher.launch(intent);
+        });
+
+        db.collection("users").document(userId).collection("addresses").whereEqualTo("isDefault", true)  // better query
+                .limit(1).get().addOnSuccessListener(query -> {
+
+                    if (!query.isEmpty()) {
+
+                        DocumentSnapshot doc = query.getDocuments().get(0);
+
+                        String address = doc.getString("name") + "\n" + doc.getString("phone") + "\n" + doc.getString("addressLine") + ", " + doc.getString("city") + ", " + doc.getString("state") + " - " + doc.getString("pincode");
+
+                        txtSelctedAddress.setText(address);
+
+                    } else {
+                        txtSelctedAddress.setText("Select Delivery Address");
                     }
-
-                    batch.commit();
                 });
     }
+
+                @Override
+                protected void onResume() {
+                    super.onResume();
+                    loadDefaultAddress();
+                }
 }
