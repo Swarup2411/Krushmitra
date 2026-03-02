@@ -74,7 +74,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/baseline_delete_outline_24"
-                android:tint="#F44336"/>
+                app:tint="#F44336" />
 
 
 
