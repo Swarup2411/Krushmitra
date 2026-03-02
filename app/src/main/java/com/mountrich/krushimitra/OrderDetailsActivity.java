@@ -22,7 +22,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
     RecyclerView rv;
     TextView txtOrderId, txtOrderStatus, txtPaymentMethod,
-            txtPaymentStatus, txtTotalAmount;
+            txtPaymentStatus, txtTotalAmount,txtDeliveryAddress;
 
     FirebaseFirestore db;
     List<CartItem> list = new ArrayList<>();
@@ -39,6 +39,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         txtPaymentMethod = findViewById(R.id.txtPaymentMethod);
         txtPaymentStatus = findViewById(R.id.txtPaymentStatus);
         txtTotalAmount = findViewById(R.id.txtTotalAmount);
+        txtDeliveryAddress = findViewById(R.id.txtDeliveryAddress);
 
         rv.setLayoutManager(new LinearLayoutManager(this));
         adapter = new OrderItemsAdapter(this, list);
@@ -50,13 +51,17 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
         txtOrderId.setText("Order ID: " + orderId);
 
-        loadOrderDetails(orderId);
-        loadOrderItems(orderId);
+
+        if (orderId != null) {
+            loadOrderDetails(orderId);
+            //loadOrderItems(orderId);
+        }
+
 
 
     }
 
-    private void loadOrderItems(String orderId) {
+    private void loadOrderDetails(String orderId) {
 
         db.collection("orders")
                 .document(orderId)
@@ -65,6 +70,33 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
                     if (!doc.exists()) return;
 
+                    // 🔥 Delivery Address
+                    String address = doc.getString("deliveryAddress");
+                    if (address != null) {
+                        txtDeliveryAddress.setText(address);
+                    }
+
+                    // 🔥 Order Info
+                    Long totalLong = doc.getLong("totalAmount");
+                    long total = totalLong != null ? totalLong : 0;
+
+                    String orderStatus = doc.getString("status");
+                    String paymentStatus = doc.getString("paymentStatus");
+                    String paymentMethod = doc.getString("paymentMethod");
+
+                    txtOrderStatus.setText("Order Status : " + orderStatus);
+                    txtPaymentMethod.setText("Payment : " + paymentMethod);
+                    txtPaymentStatus.setText("Payment Status : " + paymentStatus);
+                    txtTotalAmount.setText("Total Amount : ₹ " + total);
+
+                    // 🔥 Color logic
+                    if ("Pending".equals(paymentStatus)) {
+                        txtPaymentStatus.setTextColor(Color.parseColor("#D84315"));
+                    } else {
+                        txtPaymentStatus.setTextColor(Color.parseColor("#2E7D32"));
+                    }
+
+                    // 🔥 Load Items
                     list.clear();
 
                     List<Map<String, Object>> items =
@@ -103,33 +135,32 @@ public class OrderDetailsActivity extends AppCompatActivity {
     }
 
 
-
-    private void loadOrderDetails(String orderId) {
-
-        db.collection("orders")
-                .document(orderId)
-                .get()
-                .addOnSuccessListener(doc -> {
-
-                    if (doc.exists()) {
-
-                        long total = doc.getLong("totalAmount");
-                        String orderStatus = doc.getString("status");
-                        String paymentStatus = doc.getString("paymentStatus");
-                        String paymentMethod = doc.getString("paymentMethod");
-
-                        txtOrderStatus.setText("Order Status : " + orderStatus);
-                        txtPaymentMethod.setText("Payment : " + paymentMethod);
-                        txtPaymentStatus.setText("Payment Status : " + paymentStatus);
-                        txtTotalAmount.setText("Total Amount : ₹ " + total);
-
-                        // Color logic
-                        if ("Pending".equals(paymentStatus)) {
-                            txtPaymentStatus.setTextColor(Color.parseColor("#D84315")); // Orange
-                        } else {
-                            txtPaymentStatus.setTextColor(Color.parseColor("#2E7D32")); // Green
-                        }
-                    }
-                });
-    }
+//    private void loadOrderDetails(String orderId) {
+//
+//        db.collection("orders")
+//                .document(orderId)
+//                .get()
+//                .addOnSuccessListener(doc -> {
+//
+//                    if (doc.exists()) {
+//
+//                        long total = doc.getLong("totalAmount");
+//                        String orderStatus = doc.getString("status");
+//                        String paymentStatus = doc.getString("paymentStatus");
+//                        String paymentMethod = doc.getString("paymentMethod");
+//
+//                        txtOrderStatus.setText("Order Status : " + orderStatus);
+//                        txtPaymentMethod.setText("Payment : " + paymentMethod);
+//                        txtPaymentStatus.setText("Payment Status : " + paymentStatus);
+//                        txtTotalAmount.setText("Total Amount : ₹ " + total);
+//
+//                        // Color logic
+//                        if ("Pending".equals(paymentStatus)) {
+//                            txtPaymentStatus.setTextColor(Color.parseColor("#D84315")); // Orange
+//                        } else {
+//                            txtPaymentStatus.setTextColor(Color.parseColor("#2E7D32")); // Green
+//                        }
+//                    }
+//                });
+//    }
 }

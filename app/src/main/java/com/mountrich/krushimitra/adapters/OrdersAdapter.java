@@ -52,6 +52,8 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.Holder> {
         h.txtPayment.setText(o.getPaymentMethod());
 
 
+
+
     }
 
     @Override

@@ -129,6 +129,13 @@ public class CheckoutActivity extends AppCompatActivity {
             return;
         }
 
+        if (txtSelctedAddress.getText().toString().isEmpty() ||
+                txtSelctedAddress.getText().toString().equals("Select Delivery Address")) {
+
+            Toast.makeText(this, "Please select delivery address", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String orderId = db.collection("orders").document().getId();
 
         Map<String, Object> order = new HashMap<>();
@@ -139,6 +146,7 @@ public class CheckoutActivity extends AppCompatActivity {
         order.put("paymentMethod", "COD");
         order.put("paymentStatus", "Pending");
         order.put("timestamp", FieldValue.serverTimestamp());
+
         order.put("deliveryAddress", txtSelctedAddress.getText().toString());
         List<Map<String, Object>> orderItems = new ArrayList<>();
 

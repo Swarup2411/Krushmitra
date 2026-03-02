@@ -1,64 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/tools"
-
     android:orientation="vertical"
-    android:background="#F5F5F5"
-    android:padding="12dp">
+    android:background="#F5F7FA"
+    android:padding="16dp">
 
     <!-- Order Info Card -->
-    <!-- Order Info Card -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        app:cardCornerRadius="14dp"
-        app:cardElevation="6dp"
-        app:cardUseCompatPadding="true">
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="#E0E0E0">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
             <!-- Order ID -->
             <TextView
                 android:id="@+id/txtOrderId"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Order ID: #12345"
-                android:textSize="16sp"
+                android:text="Order #12345"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="#212121"
-                android:layout_marginBottom="12dp"/>
+                android:textColor="#212121"/>
 
-            <!-- Order Status -->
+            <!-- Status Badge -->
             <TextView
                 android:id="@+id/txtOrderStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Order Status: Placed"
-                android:textSize="15sp"
+                android:text="Placed"
+                android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="#2E7D32"
-                android:layout_marginBottom="6dp"/>
+                android:background="#E8F5E9"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#C8E6C9"
+                android:layout_gravity="start"/>
 
-            <!-- Payment Method -->
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Payment Info -->
             <TextView
                 android:id="@+id/txtPaymentMethod"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Payment: Cash on Delivery"
                 android:textSize="14sp"
-                android:textColor="#424242"
-                android:layout_marginBottom="4dp"/>
+                android:textColor="#424242"/>
 
-            <!-- Payment Status -->
             <TextView
                 android:id="@+id/txtPaymentStatus"
                 android:layout_width="wrap_content"
@@ -66,11 +76,22 @@
                 android:text="Payment Status: Pending"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#D84315"/>
+                android:textColor="#D84315"
+                android:layout_marginTop="4dp"/>
+
+            <!-- Address -->
+            <TextView
+                android:id="@+id/txtDeliveryAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Delivery Address: 123 Main Street, City"
+                android:textSize="14sp"
+                android:textColor="#616161"
+                android:layout_marginTop="16dp"/>
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 
     <!-- Items Title -->
@@ -78,34 +99,40 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Items"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="6dp"/>
+        android:textColor="#212121"
+        android:layout_marginBottom="8dp"/>
 
-    <!-- Order Items -->
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvOrderItems"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingBottom="8dp"/>
+        android:clipToPadding="false"
+        android:paddingBottom="12dp"/>
 
-    <!-- Total Amount -->
-    <androidx.cardview.widget.CardView
+    <!-- Total Amount Card -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        card_view:cardCornerRadius="12dp"
-        card_view:cardElevation="4dp">
+        android:layout_marginTop="10dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="6dp"
+        app:cardBackgroundColor="#212121">
 
         <TextView
             android:id="@+id/txtTotalAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Total: ₹1200"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:padding="12dp"
+            android:textColor="@android:color/white"
+            android:padding="18dp"
             android:textAlignment="center"/>
-    </androidx.cardview.widget.CardView>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>
