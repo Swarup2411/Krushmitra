@@ -2,16 +2,14 @@ package com.mountrich.krushimitra;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.mountrich.krushimitra.Common.CartItem;
+import com.mountrich.krushimitra.models.CartItem;
 import com.mountrich.krushimitra.adapters.OrderItemsAdapter;
 
 import java.util.ArrayList;

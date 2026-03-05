@@ -1,4 +1,4 @@
-package com.mountrich.krushimitra.Common;
+package com.mountrich.krushimitra.models;
 public class CartItem {
 
     private String productId;
