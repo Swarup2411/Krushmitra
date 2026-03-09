@@ -31,6 +31,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
     FirebaseFirestore db;
     FirebaseAuth auth;
 
+    TextView txtNoProduct;
     public ProductAdapter(Context context, List<Product> list) {
         this.context = context;
         this.list = list;
@@ -53,7 +54,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         h.price.setText("₹ " + p.getPrice());
         Picasso.get().load(p.getImageUrl()).into(h.image);
 
-//        h.addCart.setOnClickListener(v -> addToCart(p));
+        h.addCart.setOnClickListener(v -> addToCart(p));
 
         h.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, ProductDetailsActivity.class);
@@ -104,6 +105,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             image = v.findViewById(R.id.imgProduct);
             name = v.findViewById(R.id.txtName);
             price = v.findViewById(R.id.txtPrice);
+            addCart = v.findViewById(R.id.btnAddCart);
 
         }
     }

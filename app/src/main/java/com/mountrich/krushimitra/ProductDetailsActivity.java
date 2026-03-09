@@ -1,5 +1,6 @@
 package com.mountrich.krushimitra;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -9,35 +10,30 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.mountrich.krushimitra.models.Product;
-import android.content.Intent;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FieldValue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class ProductDetailsActivity extends AppCompatActivity {
 
-    // UI Components
     private ImageView imgProduct, btnFavorite;
     private TextView txtName, txtPrice, txtDescription, txtQuantity;
-    private MaterialButton btnAddCart, btnBuyNow, btnPlus, btnMinus;
-    private FirebaseAuth auth;
-    private Product currentProduct;
+    private MaterialButton btnAddCart, btnBuyNow;
+    private ImageView btnPlus, btnMinus;
 
-
-    // Firebase
     private FirebaseFirestore db;
+    private FirebaseAuth auth;
 
-    // Variables
+    private Product currentProduct;
+    private String productId;
+
     private int quantity = 1;
     private boolean isFavorite = false;
-    private String productId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,18 +41,19 @@ public class ProductDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_product_details);
 
         initViews();
-        initFirebase();
         setupQuantityButtons();
         setupFavoriteButton();
         setupButtons();
         loadProductDetails();
     }
 
-    // 🔹 Initialize Views
     private void initViews() {
+
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+
         productId = getIntent().getStringExtra("productId");
+
         imgProduct = findViewById(R.id.imgProduct);
         btnFavorite = findViewById(R.id.btnFavorite);
 
@@ -69,26 +66,21 @@ public class ProductDetailsActivity extends AppCompatActivity {
         btnBuyNow = findViewById(R.id.btnBuyNow);
         btnPlus = findViewById(R.id.btnPlus);
         btnMinus = findViewById(R.id.btnMinus);
-
-
-
     }
 
-    // 🔹 Initialize Firebase
-    private void initFirebase() {
-        db = FirebaseFirestore.getInstance();
-        productId = getIntent().getStringExtra("productId");
-    }
-
-    // 🔹 Quantity Logic
+    // Quantity
     private void setupQuantityButtons() {
 
         btnPlus.setOnClickListener(v -> {
-            quantity++;
-            txtQuantity.setText(String.valueOf(quantity));
+
+            if (quantity < 20) {
+                quantity++;
+                txtQuantity.setText(String.valueOf(quantity));
+            }
         });
 
         btnMinus.setOnClickListener(v -> {
+
             if (quantity > 1) {
                 quantity--;
                 txtQuantity.setText(String.valueOf(quantity));
@@ -96,7 +88,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         });
     }
 
-    // 🔹 Favorite Toggle Logic
+    // Favorite
     private void setupFavoriteButton() {
 
         btnFavorite.setOnClickListener(v -> {
@@ -106,13 +98,15 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 return;
             }
 
+            if (currentProduct == null) return;
+
             String userId = auth.getCurrentUser().getUid();
+
             isFavorite = !isFavorite;
 
             if (isFavorite) {
 
                 btnFavorite.setImageResource(android.R.drawable.btn_star_big_on);
-                btnFavorite.setColorFilter(getResources().getColor(android.R.color.holo_red_dark));
 
                 Map<String, Object> favItem = new HashMap<>();
                 favItem.put("productId", productId);
@@ -126,28 +120,30 @@ public class ProductDetailsActivity extends AppCompatActivity {
                         .document(productId)
                         .set(favItem);
 
+                Toast.makeText(this, "Added to favorites", Toast.LENGTH_SHORT).show();
+
             } else {
 
                 btnFavorite.setImageResource(android.R.drawable.btn_star_big_off);
-                btnFavorite.setColorFilter(getResources().getColor(R.color.teal_700));
 
                 db.collection("users")
                         .document(userId)
                         .collection("favorites")
                         .document(productId)
                         .delete();
+
+                Toast.makeText(this, "Removed from favorites", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-
-    // 🔹 Cart + Buy Button
+    // Cart + Buy
     private void setupButtons() {
 
         btnAddCart.setOnClickListener(v -> {
 
             if (currentProduct == null) {
-                Toast.makeText(this, "Product not loaded yet", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Product loading...", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -169,40 +165,38 @@ public class ProductDetailsActivity extends AppCompatActivity {
             DocumentReference cartRef = db.collection("cart")
                     .document(userId)
                     .collection("items")
-                    .document(productId);   // ✅ FIXED HERE
+                    .document(productId);
 
             cartRef.get().addOnSuccessListener(snapshot -> {
 
                 if (snapshot.exists()) {
-                    // If already in cart → increase quantity
+
                     Long oldQty = snapshot.getLong("quantity");
                     long newQty = (oldQty != null ? oldQty : 0) + quantity;
 
-                    cartRef.update("quantity", newQty)
-                            .addOnSuccessListener(a ->
-                                    Toast.makeText(this, "Quantity Updated", Toast.LENGTH_SHORT).show())
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                    cartRef.update("quantity", newQty);
+
+                    Toast.makeText(this,
+                            "Cart quantity updated",
+                            Toast.LENGTH_SHORT).show();
 
                 } else {
-                    // If not in cart → create new item
-                    cartRef.set(cartItem)
-                            .addOnSuccessListener(a ->
-                                    Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show())
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+
+                    cartRef.set(cartItem);
+
+                    Toast.makeText(this,
+                            "Added to cart",
+                            Toast.LENGTH_SHORT).show();
                 }
 
-            }).addOnFailureListener(e ->
-                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            });
         });
-
 
 
         btnBuyNow.setOnClickListener(v -> {
 
             if (currentProduct == null) {
-                Toast.makeText(this, "Product not loaded yet", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Product loading...", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -216,11 +210,9 @@ public class ProductDetailsActivity extends AppCompatActivity {
             intent.putExtra("quantity", quantity);
             startActivity(intent);
         });
-
-
     }
 
-    // 🔹 Load Product from Firestore
+    // Load Product
     private void loadProductDetails() {
 
         if (productId == null) {
@@ -241,25 +233,24 @@ public class ProductDetailsActivity extends AppCompatActivity {
                         if (product != null) {
 
                             currentProduct = product;
+
                             txtName.setText(product.getName());
                             txtPrice.setText("₹" + product.getPrice());
                             txtDescription.setText(product.getDescription());
 
                             Glide.with(this)
                                     .load(product.getImageUrl())
+//                                    .placeholder(R.drawable.)
                                     .into(imgProduct);
                         }
 
                     } else {
+
                         Toast.makeText(this,
                                 "Product not available",
                                 Toast.LENGTH_SHORT).show();
                         finish();
                     }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this,
-                                "Error loading product",
-                                Toast.LENGTH_SHORT).show());
+                });
     }
 }
