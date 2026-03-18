@@ -1,15 +1,13 @@
 package com.mountrich.krushimitra.fragments;
 
-import static android.app.Activity.RESULT_OK;
-
+import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
+import android.provider.MediaStore;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,28 +15,37 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.mountrich.krushimitra.R;
-import com.mountrich.krushimitra.crop_diseast_detection_api.HuggingFaceClient;
-import com.mountrich.krushimitra.crop_diseast_detection_api.PlantDiseaseApi;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import okhttp3.Response;
+
+import com.mountrich.krushimitra.R;
 
 public class CropDoctorFragment extends Fragment {
 
-    private ImageView ivCropImg;
-    private TextView tvResult;
-    private Button btnSelectImg, btnAnalyze;
+    private ImageView imgLeaf;
+    private Button btnUpload, btnScan;
+    private TextView txtResult;
 
-    private static final int PICK_IMAGE = 1;
-    private Uri imageUri;
+    private Bitmap selectedBitmap;
+
+    private static final int IMAGE_REQUEST = 100;
+
+
 
     public CropDoctorFragment() {
         // Required empty constructor
@@ -48,41 +55,21 @@ public class CropDoctorFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_crop_doctor_fragement, container, false);
-    }
+        View view = inflater.inflate(
+                R.layout.fragment_crop_doctor_fragement,
+                container,
+                false);
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        imgLeaf = view.findViewById(R.id.imgLeaf);
+        btnUpload = view.findViewById(R.id.btnUpload);
+        btnScan = view.findViewById(R.id.btnScan);
+        txtResult = view.findViewById(R.id.txtResult);
 
-        btnSelectImg = view.findViewById(R.id.btnSelectImage);
-        btnAnalyze = view.findViewById(R.id.btnAnalyze);
-        ivCropImg = view.findViewById(R.id.imagePreview);
-        tvResult = view.findViewById(R.id.txtDiseaseName);
+        btnUpload.setOnClickListener(v -> openGallery());
 
-        btnSelectImg.setOnClickListener(v -> openGallery());
+        btnScan.setOnClickListener(v -> scanDisease());
 
-        btnAnalyze.setOnClickListener(v -> {
-
-            if (imageUri == null) {
-                tvResult.setText("Please select an image first");
-                return;
-            }
-
-            try {
-
-                File file = uriToFile(imageUri);
-
-                callDiseaseApi(file);
-
-            } catch (Exception e) {
-
-                e.printStackTrace();
-                tvResult.setText("Error processing image");
-
-            }
-
-        });
+        return view;
     }
 
     private void openGallery() {
@@ -90,87 +77,136 @@ public class CropDoctorFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
 
-        startActivityForResult(intent, PICK_IMAGE);
+        startActivityForResult(intent, IMAGE_REQUEST);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode,
+                                 int resultCode,
+                                 @Nullable Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE && resultCode == RESULT_OK && data != null) {
+        if (requestCode == IMAGE_REQUEST
+                && resultCode == Activity.RESULT_OK
+                && data != null) {
 
-            imageUri = data.getData();
+            Uri imageUri = data.getData();
 
-            ivCropImg.setImageURI(imageUri);
+            try {
+
+                selectedBitmap =
+                        MediaStore.Images.Media.getBitmap(
+                                requireActivity().getContentResolver(),
+                                imageUri);
+
+                imgLeaf.setImageBitmap(selectedBitmap);
+
+            } catch (IOException e) {
+
+                e.printStackTrace();
+            }
         }
     }
 
-    private RequestBody imageToRequestBody(File file) {
+    private void scanDisease() {
 
-        return RequestBody.create(
-                MediaType.parse("application/octet-stream"),
-                file
-        );
-    }
+        if (selectedBitmap == null) {
+            txtResult.setText("Please upload image first");
+            return;
+        }
 
-    private void callDiseaseApi(File imageFile) {
+        try {
 
-        PlantDiseaseApi api =
-                HuggingFaceClient.getClient().create(PlantDiseaseApi.class);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream);
+            byte[] byteArray = stream.toByteArray();
 
-        RequestBody body = imageToRequestBody(imageFile);
+            OkHttpClient client = new OkHttpClient();
 
-        Call<Object> call = api.detectDisease(
-                "Bearer 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",
-                body
-        );
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart(
+                            "images",
+                            "leaf.jpg",
+                            RequestBody.create(byteArray, MediaType.parse("image/jpeg"))
+                    )
+                    .addFormDataPart("organs", "leaf")
+                    .build();
 
-        call.enqueue(new Callback<Object>() {
+            Request request = new Request.Builder()
+                    .url("https://my-api.plantnet.org/v2/identify/all?api-key=2b10gIhHNx1Y0KKYdCdMinjp6e")
+                    .post(requestBody)
+                    .build();
 
-            @Override
-            public void onResponse(Call<Object> call, Response<Object> response) {
+            client.newCall(request).enqueue(new Callback() {
 
-                if (response.isSuccessful() && response.body() != null) {
+                @Override
+                public void onFailure(Call call, IOException e) {
 
-                    String result = response.body().toString();
-
-                    tvResult.setText(result);
-
-                } else {
-
-                    tvResult.setText("Error: " + response.code());
+                    requireActivity().runOnUiThread(() ->
+                            txtResult.setText("API Error: " + e.getMessage()));
                 }
-            }
 
-            @Override
-            public void onFailure(Call<Object> call, Throwable t) {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
 
-                tvResult.setText("Failed: " + t.getMessage());
-            }
-        });
-    }
+                    String responseData = response.body().string();
 
-    private File uriToFile(Uri uri) throws Exception {
+                    requireActivity().runOnUiThread(() ->
+                            parseResult(responseData));
+                }
+            });
 
-        InputStream inputStream =
-                requireActivity().getContentResolver().openInputStream(uri);
+        } catch (Exception e) {
 
-        File file = new File(requireActivity().getCacheDir(), "image.jpg");
-
-        FileOutputStream outputStream = new FileOutputStream(file);
-
-        byte[] buffer = new byte[1024];
-        int length;
-
-        while ((length = inputStream.read(buffer)) > 0) {
-
-            outputStream.write(buffer, 0, length);
+            txtResult.setText("Error: " + e.getMessage());
         }
-
-        outputStream.close();
-        inputStream.close();
-
-        return file;
     }
+    private String bitmapToBase64(Bitmap bitmap) {
+
+        ByteArrayOutputStream byteArrayOutputStream =
+                new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG,
+                90,
+                byteArrayOutputStream);
+
+        byte[] byteArray =
+                byteArrayOutputStream.toByteArray();
+
+        return Base64.encodeToString(
+                byteArray,
+                Base64.DEFAULT);
+    }
+
+    private void parseResult(String json) {
+
+        try {
+
+            JSONObject jsonObject = new JSONObject(json);
+
+            JSONArray results = jsonObject.getJSONArray("results");
+
+            if (results.length() > 0) {
+
+                JSONObject plant = results.getJSONObject(0);
+
+                JSONObject species = plant.getJSONObject("species");
+
+                String name = species.getString("scientificNameWithoutAuthor");
+
+                txtResult.setText("Plant Detected: " + name);
+
+            } else {
+
+                txtResult.setText("Plant not detected");
+            }
+
+        } catch (Exception e) {
+
+            txtResult.setText("Parsing Error");
+        }
+    }
+
 }
