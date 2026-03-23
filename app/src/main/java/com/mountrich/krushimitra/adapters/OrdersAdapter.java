@@ -14,7 +14,10 @@ import com.mountrich.krushimitra.OrderDetailsActivity;
 import com.mountrich.krushimitra.R;
 import com.mountrich.krushimitra.models.Order;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.Holder> {
 
@@ -49,6 +52,15 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.Holder> {
             context.startActivity(i);
         });
 
+        // Format timestamp
+        if (o.getTimestamp() != null) {
+            Date date = o.getTimestamp().toDate(); // convert Firestore timestamp to Date
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
+            h.txtTime.setText(sdf.format(date));
+        } else {
+            h.txtTime.setText("Time not available");
+        }
+
         h.txtPayment.setText(o.getPaymentMethod());
 
 
@@ -62,7 +74,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.Holder> {
     }
 
     static class Holder extends RecyclerView.ViewHolder {
-        TextView txtId, txtAmount, txtStatus,txtPayment;
+        TextView txtId, txtAmount, txtStatus,txtPayment,txtTime;
 
         Holder(View v) {
             super(v);
@@ -70,6 +82,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.Holder> {
             txtAmount = v.findViewById(R.id.txtOrderAmount);
             txtStatus = v.findViewById(R.id.txtOrderStatus);
             txtPayment = v.findViewById(R.id.txtPayment);
+            txtTime = v.findViewById(R.id.txtOrderDate);
         }
     }
 }

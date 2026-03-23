@@ -1,53 +1,49 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<LinearLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.OrdersFragment">
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#F5F5F5"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <!-- Screen Title -->
+    <TextView
+        android:id="@+id/txtTitle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="12dp"
-        android:background="#F5F5F5">
+        android:layout_height="wrap_content"
+        android:text="My Orders"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:textColor="#212121"
+        android:padding="8dp" />
 
-        <!-- Screen Title -->
-        <TextView
-            android:id="@+id/txtTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="My Orders"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            android:textColor="#212121"
-            android:padding="8dp" />
+    <!-- Swipe Refresh -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <!-- Orders List -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerOrders"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:paddingTop="8dp"
             android:clipToPadding="false" />
 
-        <!-- Empty State -->
-        <TextView
-            android:id="@+id/txtEmpty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="No orders yet"
-            android:textSize="16sp"
-            android:textColor="#757575"
-            android:gravity="center"
-            android:visibility="gone"
-            android:padding="16dp" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    </LinearLayout>
+    <!-- Empty State -->
+    <TextView
+        android:id="@+id/txtEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No orders yet"
+        android:textSize="16sp"
+        android:textColor="#757575"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="16dp" />
 
-
-
-</FrameLayout>
+</LinearLayout>
