@@ -134,7 +134,12 @@ public class CropDoctorFragment extends Fragment {
                     )
                     .addFormDataPart("organs", "leaf")
                     .build();
-            String apiKey = BuildConfig.WEATHER_API_KEY; // or HF_API_KEY if you rename
+            String apiKey = BuildConfig.WEATHER_API_KEY;
+
+            if (apiKey == null || apiKey.isEmpty()) {
+                txtResult.setText("API Key missing");
+                return;
+            }
 
             Request request = new Request.Builder()
                     .url("https://my-api.plantnet.org/v2/identify/all?api-key=" + apiKey)
