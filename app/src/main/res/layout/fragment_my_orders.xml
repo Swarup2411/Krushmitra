@@ -17,6 +17,18 @@
         android:textColor="#212121"
         android:padding="8dp" />
 
+    <!-- Empty State -->
+    <TextView
+        android:id="@+id/txtEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No orders yet"
+        android:textSize="16sp"
+        android:textColor="#757575"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="16dp" />
+
     <!-- Swipe Refresh -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
@@ -34,16 +46,5 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <!-- Empty State -->
-    <TextView
-        android:id="@+id/txtEmpty"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="No orders yet"
-        android:textSize="16sp"
-        android:textColor="#757575"
-        android:gravity="center"
-        android:visibility="gone"
-        android:padding="16dp" />
 
 </LinearLayout>

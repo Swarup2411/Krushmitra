@@ -33,6 +33,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import com.mountrich.krushimitra.BuildConfig;
 import com.mountrich.krushimitra.R;
 
 public class CropDoctorFragment extends Fragment {
@@ -133,9 +134,10 @@ public class CropDoctorFragment extends Fragment {
                     )
                     .addFormDataPart("organs", "leaf")
                     .build();
+            String apiKey = BuildConfig.WEATHER_API_KEY; // or HF_API_KEY if you rename
 
             Request request = new Request.Builder()
-                    .url("https://my-api.plantnet.org/v2/identify/all?api-key=2b10gIhHNx1Y0KKYdCdMinjp6e")
+                    .url("https://my-api.plantnet.org/v2/identify/all?api-key=" + apiKey)
                     .post(requestBody)
                     .build();
 
