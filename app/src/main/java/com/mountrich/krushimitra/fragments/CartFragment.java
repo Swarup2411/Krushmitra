@@ -1,5 +1,6 @@
 package com.mountrich.krushimitra.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.mountrich.krushimitra.CheckoutActivity;
 import com.mountrich.krushimitra.models.CartItem;
 import com.mountrich.krushimitra.R;
 import com.mountrich.krushimitra.adapters.CartAdapter;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.google.firebase.firestore.ListenerRegistration;
 
 
@@ -53,7 +56,7 @@ public class CartFragment extends Fragment {
 
         btnPlaceOrder = v.findViewById(R.id.btnPlaceOrder);
 
-                auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
         rvCart.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -69,7 +72,6 @@ public class CartFragment extends Fragment {
         btnPlaceOrder.setAlpha(0.5f); // visually disabled
 
         btnPlaceOrder.setOnClickListener(vi -> showPaymentDialog());
-
 
 
         return v;
@@ -135,14 +137,18 @@ public class CartFragment extends Fragment {
     }
 
 
-
     private void showPaymentDialog() {
 
         new androidx.appcompat.app.AlertDialog.Builder(getContext())
                 .setTitle("Select Payment Method")
                 .setMessage("Choose how you want to pay")
                 .setPositiveButton("Cash on Delivery", (d, w) -> {
-                    placeOrderCOD();
+
+                    if (getContext() == null) return;
+
+                    Intent intent = new Intent(getContext(), CheckoutActivity.class);
+                    startActivity(intent);
+
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -206,7 +212,6 @@ public class CartFragment extends Fragment {
                             });
                 });
     }
-
 
 
     private void clearCart(String userId) {
