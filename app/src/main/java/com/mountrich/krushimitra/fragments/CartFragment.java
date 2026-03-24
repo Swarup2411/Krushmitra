@@ -60,9 +60,8 @@ public class CartFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         rvCart.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new CartAdapter(getContext(), list, auth.getUid());
-
-
+        // In CartFragment, modify adapter creation:
+        adapter = new CartAdapter(getContext(), list, auth.getUid(), () -> updateTotal());
         rvCart.setAdapter(adapter);
 
 
@@ -75,6 +74,23 @@ public class CartFragment extends Fragment {
 
 
         return v;
+    }
+
+    private void updateTotal() {
+        int total = 0;
+        for (CartItem item : list) {
+            total += item.getPrice() * item.getQuantity();
+        }
+        txtTotal.setText(" ₹ " + total);
+
+        // Enable or disable Place Order button dynamically
+        if (total > 0) {
+            btnPlaceOrder.setEnabled(true);
+            btnPlaceOrder.setAlpha(1f);
+        } else {
+            btnPlaceOrder.setEnabled(false);
+            btnPlaceOrder.setAlpha(0.5f);
+        }
     }
 
     @Override
