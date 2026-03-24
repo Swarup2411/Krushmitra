@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.mountrich.krushimitra.AddAddressActivity;
+import com.mountrich.krushimitra.activities.AddAddressActivity;
 import com.mountrich.krushimitra.R;
 import com.mountrich.krushimitra.models.Address;
 

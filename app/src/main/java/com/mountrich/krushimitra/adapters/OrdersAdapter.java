@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.mountrich.krushimitra.OrderDetailsActivity;
+import com.mountrich.krushimitra.activities.OrderDetailsActivity;
 import com.mountrich.krushimitra.R;
 import com.mountrich.krushimitra.models.Order;
 

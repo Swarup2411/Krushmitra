@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.mountrich.krushimitra.ProductDetailsActivity;
+import com.mountrich.krushimitra.activities.ProductDetailsActivity;
 import com.mountrich.krushimitra.R;
 import com.mountrich.krushimitra.models.Product;
 import com.squareup.picasso.Picasso;

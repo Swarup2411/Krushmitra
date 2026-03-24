@@ -1,4 +1,4 @@
-package com.mountrich.krushimitra;
+package com.mountrich.krushimitra.activities;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.mountrich.krushimitra.R;
 import com.mountrich.krushimitra.models.CartItem;
 import com.mountrich.krushimitra.adapters.OrderItemsAdapter;
 

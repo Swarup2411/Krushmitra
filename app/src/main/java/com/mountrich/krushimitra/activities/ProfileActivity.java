@@ -1,4 +1,4 @@
-package com.mountrich.krushimitra;
+package com.mountrich.krushimitra.activities;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.mountrich.krushimitra.R;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.mountrich.krushimitra;
+package com.mountrich.krushimitra.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.mountrich.krushimitra.R;
 
 import java.util.HashMap;
 import java.util.Map;

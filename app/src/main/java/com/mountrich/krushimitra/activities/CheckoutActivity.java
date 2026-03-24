@@ -1,4 +1,4 @@
-package com.mountrich.krushimitra;
+package com.mountrich.krushimitra.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.mountrich.krushimitra.R;
 import com.mountrich.krushimitra.adapters.CartAdapter;
 import com.mountrich.krushimitra.models.CartItem;
 import com.google.android.material.button.MaterialButton;

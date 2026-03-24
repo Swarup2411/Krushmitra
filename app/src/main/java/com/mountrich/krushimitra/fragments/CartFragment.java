@@ -17,7 +17,7 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.mountrich.krushimitra.CheckoutActivity;
+import com.mountrich.krushimitra.activities.CheckoutActivity;
 import com.mountrich.krushimitra.models.CartItem;
 import com.mountrich.krushimitra.R;
 import com.mountrich.krushimitra.adapters.CartAdapter;

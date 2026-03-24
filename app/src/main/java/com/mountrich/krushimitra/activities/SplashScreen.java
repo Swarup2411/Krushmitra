@@ -1,4 +1,4 @@
-package com.mountrich.krushimitra;
+package com.mountrich.krushimitra.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.mountrich.krushimitra.R;
 
 public class SplashScreen extends AppCompatActivity {
 

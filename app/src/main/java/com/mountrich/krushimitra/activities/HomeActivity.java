@@ -1,4 +1,4 @@
-package com.mountrich.krushimitra;
+package com.mountrich.krushimitra.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,9 +19,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.mountrich.krushimitra.R;
 import com.mountrich.krushimitra.fragments.CartFragment;
 
 import com.mountrich.krushimitra.fragments.CropDoctorFragment;

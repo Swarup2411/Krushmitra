@@ -1,4 +1,4 @@
-package com.mountrich.krushimitra;
+package com.mountrich.krushimitra.activities;
 
 import static android.view.View.GONE;
 
@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.*;
@@ -21,6 +20,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.*;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.mountrich.krushimitra.R;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(com.mountrich.krushimitra.R.layout.activity_login);
 
         initViews();
 
@@ -63,12 +63,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        edtUsername = findViewById(R.id.edtUsernameLogin);
-        edtPassword = findViewById(R.id.edtPasswordLogin);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnGoogle = findViewById(R.id.google_sign_up_btn);
-        progressBar = findViewById(R.id.loginProgressbar);
-        tvRegister = findViewById(R.id.tv_new_user);
+        edtUsername = findViewById(com.mountrich.krushimitra.R.id.edtUsernameLogin);
+        edtPassword = findViewById(com.mountrich.krushimitra.R.id.edtPasswordLogin);
+        btnLogin = findViewById(com.mountrich.krushimitra.R.id.btnLogin);
+        btnGoogle = findViewById(com.mountrich.krushimitra.R.id.google_sign_up_btn);
+        progressBar = findViewById(com.mountrich.krushimitra.R.id.loginProgressbar);
+        tvRegister = findViewById(com.mountrich.krushimitra.R.id.tv_new_user);
     }
 
     // ---------------- EMAIL LOGIN ----------------
@@ -88,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                         goToHome();
                     } else {
                         Toast.makeText(this,
-                                task.getException().getMessage(),
+                                "Invalid password or email",
                                 Toast.LENGTH_LONG).show();
                     }
                 });
