@@ -124,12 +124,12 @@ public class CheckoutActivity extends AppCompatActivity {
         if (userId == null) return;
 
         if (list.isEmpty()) {
-            Toast.makeText(this, "Cart is empty", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Cart is empty,please add item first", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (txtSelctedAddress.getText().toString().isEmpty() ||
-                txtSelctedAddress.getText().toString().equals("Select Delivery Address")) {
+                txtSelctedAddress.getText().toString().equals("Select Address")) {
 
             Toast.makeText(this, "Please select delivery address", Toast.LENGTH_SHORT).show();
             return;

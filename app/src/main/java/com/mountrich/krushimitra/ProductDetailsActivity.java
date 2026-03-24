@@ -21,17 +21,15 @@ import java.util.Map;
 
 public class ProductDetailsActivity extends AppCompatActivity {
 
-    private ImageView imgProduct, btnFavorite;
+    private ImageView imgProduct, btnFavorite, btnPlus, btnMinus;
     private TextView txtName, txtPrice, txtDescription, txtQuantity;
     private MaterialButton btnAddCart, btnBuyNow;
-    private ImageView btnPlus, btnMinus;
 
     private FirebaseFirestore db;
     private FirebaseAuth auth;
 
     private Product currentProduct;
     private String productId;
-
     private int quantity = 1;
     private boolean isFavorite = false;
 
@@ -41,14 +39,15 @@ public class ProductDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_product_details);
 
         initViews();
+
         setupQuantityButtons();
         setupFavoriteButton();
         setupButtons();
+
         loadProductDetails();
     }
 
     private void initViews() {
-
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
@@ -56,23 +55,23 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         imgProduct = findViewById(R.id.imgProduct);
         btnFavorite = findViewById(R.id.btnFavorite);
-
         txtName = findViewById(R.id.txtName);
         txtPrice = findViewById(R.id.txtPrice);
         txtDescription = findViewById(R.id.txtDescription);
         txtQuantity = findViewById(R.id.txtQuantity);
-
         btnAddCart = findViewById(R.id.btnAddCart);
         btnBuyNow = findViewById(R.id.btnBuyNow);
         btnPlus = findViewById(R.id.btnPlus);
         btnMinus = findViewById(R.id.btnMinus);
+
+        // Disable Buy Now by default
+        btnBuyNow.setEnabled(false);
+        btnBuyNow.setAlpha(0.5f);
     }
 
-    // Quantity
+    // Quantity buttons
     private void setupQuantityButtons() {
-
         btnPlus.setOnClickListener(v -> {
-
             if (quantity < 20) {
                 quantity++;
                 txtQuantity.setText(String.valueOf(quantity));
@@ -80,7 +79,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
         });
 
         btnMinus.setOnClickListener(v -> {
-
             if (quantity > 1) {
                 quantity--;
                 txtQuantity.setText(String.valueOf(quantity));
@@ -88,9 +86,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
         });
     }
 
-    // Favorite
+    // Favorite button
     private void setupFavoriteButton() {
-
         btnFavorite.setOnClickListener(v -> {
 
             if (auth.getCurrentUser() == null) {
@@ -101,11 +98,9 @@ public class ProductDetailsActivity extends AppCompatActivity {
             if (currentProduct == null) return;
 
             String userId = auth.getCurrentUser().getUid();
-
             isFavorite = !isFavorite;
 
             if (isFavorite) {
-
                 btnFavorite.setImageResource(android.R.drawable.btn_star_big_on);
 
                 Map<String, Object> favItem = new HashMap<>();
@@ -123,25 +118,20 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 Toast.makeText(this, "Added to favorites", Toast.LENGTH_SHORT).show();
 
             } else {
-
                 btnFavorite.setImageResource(android.R.drawable.btn_star_big_off);
-
                 db.collection("users")
                         .document(userId)
                         .collection("favorites")
                         .document(productId)
                         .delete();
-
                 Toast.makeText(this, "Removed from favorites", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Cart + Buy
+    // Add to Cart & Buy Now buttons
     private void setupButtons() {
-
         btnAddCart.setOnClickListener(v -> {
-
             if (currentProduct == null) {
                 Toast.makeText(this, "Product loading...", Toast.LENGTH_SHORT).show();
                 return;
@@ -168,33 +158,24 @@ public class ProductDetailsActivity extends AppCompatActivity {
                     .document(productId);
 
             cartRef.get().addOnSuccessListener(snapshot -> {
-
                 if (snapshot.exists()) {
-
                     Long oldQty = snapshot.getLong("quantity");
                     long newQty = (oldQty != null ? oldQty : 0) + quantity;
-
                     cartRef.update("quantity", newQty);
-
-                    Toast.makeText(this,
-                            "Cart quantity updated",
-                            Toast.LENGTH_SHORT).show();
-
+                    Toast.makeText(this, "Cart quantity updated", Toast.LENGTH_SHORT).show();
                 } else {
-
                     cartRef.set(cartItem);
-
-                    Toast.makeText(this,
-                            "Added to cart",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
                 }
 
+                // Enable Buy Now button
+                btnBuyNow.setEnabled(true);
+                btnBuyNow.setAlpha(1f);
             });
+
         });
 
-
         btnBuyNow.setOnClickListener(v -> {
-
             if (currentProduct == null) {
                 Toast.makeText(this, "Product loading...", Toast.LENGTH_SHORT).show();
                 return;
@@ -212,9 +193,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
         });
     }
 
-    // Load Product
+    // Load product info
     private void loadProductDetails() {
-
         if (productId == null) {
             Toast.makeText(this, "Product not found!", Toast.LENGTH_SHORT).show();
             finish();
@@ -225,13 +205,9 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 .document(productId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-
                     if (documentSnapshot.exists()) {
-
                         Product product = documentSnapshot.toObject(Product.class);
-
                         if (product != null) {
-
                             currentProduct = product;
 
                             txtName.setText(product.getName());
@@ -240,16 +216,43 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
                             Glide.with(this)
                                     .load(product.getImageUrl())
-//                                    .placeholder(R.drawable.)
                                     .into(imgProduct);
+
+                            // ✅ Load saved quantity from cart
+                            loadCartQuantity();
                         }
-
                     } else {
-
-                        Toast.makeText(this,
-                                "Product not available",
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Product not available", Toast.LENGTH_SHORT).show();
                         finish();
+                    }
+                });
+    }
+
+    // Load existing quantity from cart
+    private void loadCartQuantity() {
+        if (auth.getCurrentUser() == null || productId == null) return;
+
+        String userId = auth.getCurrentUser().getUid();
+
+        db.collection("cart")
+                .document(userId)
+                .collection("items")
+                .document(productId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        Long savedQty = snapshot.getLong("quantity");
+                        if (savedQty != null && savedQty > 0) {
+                            quantity = savedQty.intValue();
+                            txtQuantity.setText(String.valueOf(quantity));
+                            btnBuyNow.setEnabled(true);
+                            btnBuyNow.setAlpha(1f);
+                        }
+                    } else {
+                        quantity = 1;
+                        txtQuantity.setText(String.valueOf(quantity));
+                        btnBuyNow.setEnabled(false);
+                        btnBuyNow.setAlpha(0.5f);
                     }
                 });
     }
