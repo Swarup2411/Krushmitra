@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -35,6 +36,7 @@ import okhttp3.Response;
 
 import com.mountrich.krushimitra.BuildConfig;
 import com.mountrich.krushimitra.R;
+import com.mountrich.krushimitra.crop_diseast_detection_api.DiseaseDatabase;
 
 public class CropDoctorFragment extends Fragment {
 
@@ -134,7 +136,7 @@ public class CropDoctorFragment extends Fragment {
                     )
                     .addFormDataPart("organs", "leaf")
                     .build();
-            String apiKey = BuildConfig.WEATHER_API_KEY;
+            String apiKey = BuildConfig.PLANT_API_KEY;
 
             if (apiKey == null || apiKey.isEmpty()) {
                 txtResult.setText("API Key missing");
@@ -160,8 +162,12 @@ public class CropDoctorFragment extends Fragment {
 
                     String responseData = response.body().string();
 
-                    requireActivity().runOnUiThread(() ->
-                            parseResult(responseData));
+
+
+                    requireActivity().runOnUiThread(() -> {
+                        txtResult.setText("Api response: " + responseData); // now safe
+                        parseResult(responseData);
+                    });
                 }
             });
 
@@ -193,26 +199,40 @@ public class CropDoctorFragment extends Fragment {
 
             JSONObject jsonObject = new JSONObject(json);
 
-            JSONArray results = jsonObject.getJSONArray("results");
-
-            if (results.length() > 0) {
-
-                JSONObject plant = results.getJSONObject(0);
-
-                JSONObject species = plant.getJSONObject("species");
-
-                String name = species.getString("scientificNameWithoutAuthor");
-
-                txtResult.setText("Plant Detected: " + name);
-
-            } else {
-
-                txtResult.setText("Plant not detected");
+            if (!jsonObject.has("results")) {
+                txtResult.setText("Invalid API response");
+                return;
             }
 
-        } catch (Exception e) {
+            JSONArray results = jsonObject.getJSONArray("results");
 
-            txtResult.setText("Parsing Error");
+            if (results.length() == 0) {
+                txtResult.setText("No plant detected");
+                return;
+            }
+
+            JSONObject plant = results.getJSONObject(0);
+            JSONObject species = plant.getJSONObject("species");
+
+            String name = species.getString("scientificNameWithoutAuthor");
+
+            String lowerName = name.toLowerCase();
+
+            Map<String, String> diseaseMap = DiseaseDatabase.getDiseaseData();
+
+            String result = "No disease info available";
+
+            for (String key : diseaseMap.keySet()) {
+                if (lowerName.contains(key)) {
+                    result = diseaseMap.get(key);
+                    break;
+                }
+            }
+
+            txtResult.setText("🌿 Detected: " + name + "\n\n" + result);
+
+        } catch (Exception e) {
+            txtResult.setText("Parsing Error: " + e.getMessage());
         }
     }
 
