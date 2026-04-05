@@ -70,7 +70,7 @@ public class HomeFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
         productList = new ArrayList<>();
-        productAdapter = new ProductAdapter(getContext(), productList);
+        productAdapter = new ProductAdapter(getContext(), productList,this);
         recyclerView.setAdapter(productAdapter);
 
 

@@ -11,12 +11,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.mountrich.krushimitra.activities.ProductDetailsActivity;
 import com.mountrich.krushimitra.R;
+import com.mountrich.krushimitra.fragments.CartFragment;
 import com.mountrich.krushimitra.models.Product;
 import com.squareup.picasso.Picasso;
 
@@ -26,17 +28,19 @@ import java.util.Map;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder> {
 
+    private final Fragment fragment;
     Context context;
     List<Product> list;
     FirebaseFirestore db;
     FirebaseAuth auth;
 
     TextView txtNoProduct;
-    public ProductAdapter(Context context, List<Product> list) {
+    public ProductAdapter(Context context, List<Product> list, Fragment fragment) {
         this.context = context;
         this.list = list;
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+        this.fragment = fragment ;
     }
 
     @NonNull
@@ -88,6 +92,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
                 .addOnSuccessListener(a ->
                         Toast.makeText(context, "Added to cart", Toast.LENGTH_SHORT).show()
                 );
+
+        fragment.getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new CartFragment())
+                .commit();
+
     }
 
     @Override
